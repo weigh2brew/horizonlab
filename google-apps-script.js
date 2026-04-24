@@ -1,26 +1,46 @@
 /**
  * Horizon Lab — Google Apps Script Backend
  *
+ * This script reads/writes the same Google Sheet that horizonvote uses,
+ * but via tabs it owns (serials / brews / stats). The existing horizonvote
+ * key-value tab is untouched. Because this script opens the sheet by ID,
+ * it can be a standalone Apps Script — it does NOT need to be container-
+ * bound to the sheet.
+ *
  * SETUP:
- * 1. Create a new Google Sheet with 3 tabs:
- *    - "serials"  — Column A: serial, Column B: registered_token, Column C: registered_at, Column D: ig_handle
- *    - "brews"    — Columns: timestamp | serial_hash | origin | process | roast | brew_method | treatment_mins | rating | flavors | note
- *    - "stats"    — Column A: key, Column B: value (for caching aggregates)
+ * 1. In the shared Google Sheet, add three new tabs (leave the existing
+ *    horizonvote tab alone):
+ *    - "serials"  — Column A: serial, Column B: registered_token,
+ *                   Column C: registered_at, Column D: ig_handle
+ *    - "brews"    — timestamp | serial_hash | origin | process | roast |
+ *                   brew_method | treatment_mins | rating | flavors | note
+ *    - "stats"    — Column A: key, Column B: value (cache)
  *
- * 2. In the "serials" tab, populate Column A with valid Horizon serial numbers (e.g. AHN101ED1001)
- *    Leave columns B-D blank — they'll be filled when owners verify.
+ * 2. In "serials" tab Column A, paste the valid Horizon serial numbers
+ *    from manufacturing. Leave columns B-D blank.
  *
- * 3. Deploy as Web App:
- *    - Execute as: Me
- *    - Who has access: Anyone
+ * 3. Create a new Apps Script project at script.google.com (standalone,
+ *    not bound to the sheet). Paste this entire file in. Deploy as
+ *    Web App with:
+ *      - Execute as: Me
+ *      - Who has access: Anyone
+ *    On first run, authorize the "See, edit, create, and delete..."
+ *    scope so the script can read/write the sheet by ID.
  *
- * 4. Copy the deployment URL into app.js CONFIG.sheetUrl
+ * 4. Copy the deployment URL into app.js CONFIG.sheetUrl.
  */
 
 // ---------- SHEET CONFIG ----------
+// Shared with horizonvote. Find in the sheet URL:
+//   https://docs.google.com/spreadsheets/d/<ID>/edit
+const SHEET_ID = '17qM1uriZ4QgXbO0iwibxLO5LIw1f6Vit0h2X7ws7-Vs';
 const SHEET_SERIALS = 'serials';
 const SHEET_BREWS = 'brews';
 const SHEET_STATS = 'stats';
+
+function openSheet() {
+  return SpreadsheetApp.openById(SHEET_ID);
+}
 
 // ---------- ROUTER ----------
 function doGet(e) {
@@ -74,7 +94,7 @@ function handleVerify(params) {
   if (!serial) return VERIFY_FAIL;
   if (!HORIZON_SERIAL.test(serial)) return VERIFY_FAIL;
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = openSheet();
   const sheet = ss.getSheetByName(SHEET_SERIALS);
   const data = sheet.getDataRange().getValues();
 
@@ -104,7 +124,7 @@ function handleSubmitBrew(payload) {
   const token = payload.token;
   if (!token) return { success: false, error: 'Missing token.' };
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = openSheet();
   const serialSheet = ss.getSheetByName(SHEET_SERIALS);
   const serialData = serialSheet.getDataRange().getValues();
   let tokenValid = false;
@@ -162,7 +182,7 @@ function sanitize(str, maxLen) {
 
 // ---------- READ AGGREGATES ----------
 function handleReadAggregates() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = openSheet();
 
   // Check cache (stats tab)
   const statsSheet = ss.getSheetByName(SHEET_STATS);
@@ -251,7 +271,7 @@ function handleReadFeed(params) {
   const limit = Math.min(parseInt(params.limit) || 10, 50);
   const offset = parseInt(params.offset) || 0;
 
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = openSheet();
   const brewSheet = ss.getSheetByName(SHEET_BREWS);
   const data = brewSheet.getDataRange().getValues();
 
