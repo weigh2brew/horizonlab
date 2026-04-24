@@ -159,21 +159,29 @@ async function handleVerify() {
   btn.textContent = t('btn_verifying');
   msg.textContent = '';
 
+  // Horizon serial format: AHN101 + 2-letter year + 1-digit quarter (1-4) + 3-digit sequence
+  // Example: AHN101ED1001
+  const HORIZON_SERIAL = /^AHN101[A-Z]{2}[1-4]\d{3}$/;
+  const cleaned = serial.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+
   try {
     if (!CONFIG.sheetUrl) {
-      if (serial.toUpperCase().startsWith('HZ-')) {
-        const demoToken = 'demo_' + btoa(serial).slice(0, 16);
-        onVerifySuccess(serial, demoToken);
+      if (HORIZON_SERIAL.test(cleaned)) {
+        const demoToken = 'demo_' + btoa(cleaned).slice(0, 16);
+        onVerifySuccess(cleaned, demoToken);
       } else {
         throw new Error(t('err_invalid_serial'));
       }
     } else {
-      const url = CONFIG.sheetUrl + '?action=verify&serial=' + encodeURIComponent(serial);
+      if (!HORIZON_SERIAL.test(cleaned)) {
+        throw new Error(t('err_invalid_serial'));
+      }
+      const url = CONFIG.sheetUrl + '?action=verify&serial=' + encodeURIComponent(cleaned);
       const res = await fetch(url);
       const json = await res.json();
 
       if (json.success) {
-        onVerifySuccess(serial, json.token);
+        onVerifySuccess(cleaned, json.token);
       } else {
         throw new Error(json.error || t('err_invalid_serial'));
       }
