@@ -7,7 +7,7 @@
  *    - "brews"    — Columns: timestamp | serial_hash | origin | process | roast | brew_method | treatment_mins | rating | flavors | note
  *    - "stats"    — Column A: key, Column B: value (for caching aggregates)
  *
- * 2. In the "serials" tab, populate Column A with valid Horizon serial numbers (e.g. HZ-20260001)
+ * 2. In the "serials" tab, populate Column A with valid Horizon serial numbers (e.g. AHN101ED1001)
  *    Leave columns B-D blank — they'll be filled when owners verify.
  *
  * 3. Deploy as Web App:
@@ -61,16 +61,25 @@ function jsonResponse(data) {
 }
 
 // ---------- VERIFY SERIAL ----------
+// Horizon serial format: AHN101 + 2-letter year + 1-digit quarter (1-4) + 3-digit sequence
+// Example: AHN101ED1001
+const HORIZON_SERIAL = /^AHN101[A-Z]{2}[1-4]\d{3}$/;
+
+// Single generic message — never reveal whether the failure was format
+// vs. unknown serial, so callers can't probe the format from responses.
+const VERIFY_FAIL = { success: false, error: 'Serial number not recognized. Please check and try again.' };
+
 function handleVerify(params) {
-  const serial = (params.serial || '').trim().toUpperCase();
-  if (!serial) return { success: false, error: 'No serial provided.' };
+  const serial = (params.serial || '').replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+  if (!serial) return VERIFY_FAIL;
+  if (!HORIZON_SERIAL.test(serial)) return VERIFY_FAIL;
 
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   const sheet = ss.getSheetByName(SHEET_SERIALS);
   const data = sheet.getDataRange().getValues();
 
   for (let i = 1; i < data.length; i++) {
-    const rowSerial = String(data[i][0]).trim().toUpperCase();
+    const rowSerial = String(data[i][0]).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
     if (rowSerial === serial) {
       // Already registered? Return existing token.
       const existingToken = data[i][1];
@@ -86,7 +95,7 @@ function handleVerify(params) {
     }
   }
 
-  return { success: false, error: 'Serial not recognized. Please check and try again.' };
+  return VERIFY_FAIL;
 }
 
 // ---------- SUBMIT BREW ----------
