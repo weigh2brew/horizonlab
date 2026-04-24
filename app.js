@@ -2,28 +2,96 @@
 
 // ---------- CONFIG ----------
 const CONFIG = {
-  // Replace with your deployed Google Apps Script URL
+  // Horizon Lab's own Apps Script backend (brew verification + submission).
+  // Leave blank to run in demo mode (localStorage only).
   sheetUrl: '',
   pollInterval: 30000,
   feedPageSize: 10,
+
+  // horizonvote's deployed Apps Script — reads the shared vote sheet.
+  voteUrl: 'https://script.google.com/macros/s/AKfycbxgvqBZxYPq3yGLnJ75AitMoYym2oNkddqRN8hzRG4yuKylxolksVkcx6FYgoaZ9x2RNg/exec',
+  voteInterval: 15000,
 };
 
 // ---------- STATE ----------
 const state = {
+  lang: 'en',
   verified: false,
   token: null,
   serial: null,
   aggregates: null,
   feed: [],
   feedOffset: 0,
+  comments: null,
+  votes: null,
 };
 
 // ---------- DOM ----------
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
 
+// ---------- I18N ----------
+function t(key) {
+  const dict = (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS[state.lang]) || {};
+  const fallback = (typeof TRANSLATIONS !== 'undefined' && TRANSLATIONS.en) || {};
+  return dict[key] !== undefined ? dict[key] : (fallback[key] !== undefined ? fallback[key] : key);
+}
+
+function applyTranslations(lang) {
+  state.lang = lang;
+  document.documentElement.lang = lang;
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    el.innerHTML = t(key);
+  });
+
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.placeholder = t(key);
+  });
+
+  document.querySelectorAll('.lang-switcher button').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === lang);
+  });
+
+  // Re-render dynamic sections so their localized strings refresh.
+  if (state.aggregates) renderDashboard(state.aggregates);
+  if (state.feed && state.feed.length) renderFeed(state.feed);
+  if (state.comments) renderComments(state.comments);
+  if (state.votes) renderVotes(state.votes);
+}
+
+function detectLang() {
+  const supported = Object.keys(TRANSLATIONS);
+  const saved = localStorage.getItem('horizonlab_lang');
+  if (saved && supported.includes(saved)) return saved;
+  const nav = navigator.language || navigator.userLanguage || 'en';
+  if (supported.includes(nav)) return nav;
+  const base = nav.split('-')[0];
+  const match = supported.find(s => s.split('-')[0] === base);
+  return match || 'en';
+}
+
+function initLanguage() {
+  applyTranslations(detectLang());
+
+  $('#langSwitcher').addEventListener('click', e => {
+    const btn = e.target.closest('button[data-lang]');
+    if (!btn) return;
+    localStorage.setItem('horizonlab_lang', btn.dataset.lang);
+    applyTranslations(btn.dataset.lang);
+  });
+}
+
 // ---------- INIT ----------
 document.addEventListener('DOMContentLoaded', () => {
+  initLanguage();
   initScrollFade();
   initVerification();
   initForm();
@@ -31,7 +99,9 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchDashboard();
   fetchFeed();
   fetchComments();
+  fetchVotes();
   setInterval(fetchDashboard, CONFIG.pollInterval);
+  setInterval(fetchVotes, CONFIG.voteInterval);
 });
 
 // ---------- SCROLL FADE ----------
@@ -49,7 +119,6 @@ function initScrollFade() {
 
 // ---------- SERIAL VERIFICATION ----------
 function initVerification() {
-  // Check localStorage for existing verification
   const saved = localStorage.getItem('horizonlab_token');
   const savedSerial = localStorage.getItem('horizonlab_serial');
   if (saved && savedSerial) {
@@ -80,24 +149,23 @@ async function handleVerify() {
   const serial = input.value.trim();
 
   if (!serial) {
-    msg.textContent = 'Please enter your serial number.';
+    msg.textContent = t('err_missing_serial');
     msg.className = 'form-hint error';
     return;
   }
 
   const btn = $('#btnVerify');
   btn.disabled = true;
-  btn.textContent = 'Verifying...';
+  btn.textContent = t('btn_verifying');
   msg.textContent = '';
 
   try {
     if (!CONFIG.sheetUrl) {
-      // Demo mode: accept any serial starting with HZ-
       if (serial.toUpperCase().startsWith('HZ-')) {
         const demoToken = 'demo_' + btoa(serial).slice(0, 16);
         onVerifySuccess(serial, demoToken);
       } else {
-        throw new Error('Invalid serial number format. Expected: HZ-XXXXXXXX');
+        throw new Error(t('err_invalid_serial'));
       }
     } else {
       const url = CONFIG.sheetUrl + '?action=verify&serial=' + encodeURIComponent(serial);
@@ -107,7 +175,7 @@ async function handleVerify() {
       if (json.success) {
         onVerifySuccess(serial, json.token);
       } else {
-        throw new Error(json.error || 'Serial not recognized. Please check and try again.');
+        throw new Error(json.error || t('err_invalid_serial'));
       }
     }
   } catch (err) {
@@ -115,7 +183,7 @@ async function handleVerify() {
     msg.className = 'form-hint error';
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Verify';
+    btn.textContent = t('btn_verify');
   }
 }
 
@@ -174,7 +242,6 @@ async function handleSubmit(e) {
   const form = $('#brewForm');
   const btn = $('#btnSubmit');
 
-  // Gather data
   const data = {
     origin: $('#coffeeOrigin').value,
     process: $('#processMethod').value,
@@ -186,16 +253,14 @@ async function handleSubmit(e) {
     note: $('#brewNote').value.trim(),
   };
 
-  // Validate
-  if (!data.roast) { alert('Please select a roast level.'); return; }
-  if (!data.rating) { alert('Please rate the taste difference.'); return; }
+  if (!data.roast) { alert(t('err_missing_roast')); return; }
+  if (!data.rating) { alert(t('err_missing_rating')); return; }
 
   btn.disabled = true;
-  btn.textContent = 'Submitting...';
+  btn.textContent = t('btn_submitting');
 
   try {
     if (!CONFIG.sheetUrl) {
-      // Demo mode: simulate submission
       await new Promise(r => setTimeout(r, 800));
       addToLocalFeed(data);
     } else {
@@ -214,22 +279,20 @@ async function handleSubmit(e) {
       });
     }
 
-    // Show success
     form.style.display = 'none';
     $('#submitSuccess').hidden = false;
 
-    // Refresh data
     setTimeout(() => {
       fetchDashboard();
       fetchFeed();
     }, 1500);
 
   } catch (err) {
-    alert('Submission failed. Please try again.');
+    alert(t('err_submission'));
     console.error(err);
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Submit Brew Log';
+    btn.textContent = t('btn_submit');
   }
 }
 
@@ -247,6 +310,44 @@ function addToLocalFeed(data) {
   saved.unshift(entry);
   if (saved.length > 50) saved = saved.slice(0, 50);
   localStorage.setItem('horizonlab_demo_feed', JSON.stringify(saved));
+}
+
+// ---------- COMMUNITY VOTE (horizonvote sheet) ----------
+async function fetchVotes() {
+  try {
+    if (!CONFIG.voteUrl) return;
+    const url = CONFIG.voteUrl + (CONFIG.voteUrl.includes('?') ? '&' : '?') + 'action=read&_t=' + Date.now();
+    const res = await fetch(url);
+    const data = await res.json();
+    state.votes = data;
+    renderVotes(data);
+  } catch (err) {
+    console.error('Vote fetch error:', err);
+  }
+}
+
+function renderVotes(data) {
+  const yes = parseInt(data?.taste_yes, 10) || 0;
+  const no = parseInt(data?.taste_no, 10) || 0;
+  const total = yes + no;
+
+  const pctYes = total > 0 ? Math.round((yes / total) * 100) : 0;
+  const pctNo = total > 0 ? 100 - pctYes : 0;
+
+  const elPctYes = $('#pctTasteYes');
+  const elPctNo = $('#pctTasteNo');
+  const elBarYes = $('#barTasteYes');
+  const elBarNo = $('#barTasteNo');
+  const elTotal = $('#totalTasting');
+
+  if (elPctYes) elPctYes.textContent = total ? pctYes + '%' : '--';
+  if (elPctNo) elPctNo.textContent = total ? pctNo + '%' : '--';
+  if (elBarYes) elBarYes.style.width = pctYes + '%';
+  if (elBarNo) elBarNo.style.width = pctNo + '%';
+  if (elTotal) {
+    elTotal.innerHTML = (total ? total.toLocaleString() : '--') +
+      ' <span data-i18n="votes_suffix">' + t('votes_suffix') + '</span>';
+  }
 }
 
 // ---------- DASHBOARD DATA ----------
@@ -269,7 +370,6 @@ async function fetchDashboard() {
 }
 
 function getDemoAggregates() {
-  // Build from local demo feed
   let feed = [];
   try { feed = JSON.parse(localStorage.getItem('horizonlab_demo_feed') || '[]'); } catch {}
 
@@ -288,23 +388,19 @@ function getDemoAggregates() {
     owners.add(f.serial_prefix);
     totalRating += f.rating;
 
-    // Origin
     if (!byOrigin[f.origin]) byOrigin[f.origin] = { sum: 0, count: 0 };
     byOrigin[f.origin].sum += f.rating;
     byOrigin[f.origin].count++;
 
-    // Time bucket
     const bucket = getTimeBucket(f.treatment_mins);
     if (!byTime[bucket]) byTime[bucket] = { sum: 0, count: 0 };
     byTime[bucket].sum += f.rating;
     byTime[bucket].count++;
 
-    // Method
     if (!byMethod[f.brew_method]) byMethod[f.brew_method] = { sum: 0, count: 0 };
     byMethod[f.brew_method].sum += f.rating;
     byMethod[f.brew_method].count++;
 
-    // Flavors
     const flavors = typeof f.flavors === 'string' ? f.flavors.split(', ').filter(Boolean) : (f.flavors || []);
     flavors.forEach(fl => {
       byFlavor[fl] = (byFlavor[fl] || 0) + 1;
@@ -332,27 +428,24 @@ function getTimeBucket(mins) {
 
 // ---------- RENDER DASHBOARD ----------
 function renderDashboard(data) {
-  // Hero stats
   $('#statBrews').textContent = (data.total_brews || 0).toLocaleString();
   $('#statOwners').textContent = (data.total_owners || 0).toLocaleString();
   $('#statAvgRating').textContent = data.avg_rating && data.avg_rating > 0
     ? data.avg_rating + '/5'
     : '--';
 
-  // Charts
   renderBarChart('chartOrigin', data.by_origin, 'avg');
   renderBarChart('chartTime', data.by_time, 'avg', true);
   renderBarChart('chartMethod', data.by_method, 'avg');
   renderCountChart('chartFlavor', data.by_flavor);
 
-  // Explore gaps
   renderGaps(data);
 }
 
 function renderBarChart(containerId, dataObj, mode, preserveOrder) {
   const container = document.getElementById(containerId);
   if (!dataObj || Object.keys(dataObj).length === 0) {
-    container.innerHTML = '<div class="chart-empty">Waiting for data...</div>';
+    container.innerHTML = '<div class="chart-empty">' + escapeHtml(t('chart_empty')) + '</div>';
     return;
   }
 
@@ -366,13 +459,13 @@ function renderBarChart(containerId, dataObj, mode, preserveOrder) {
     entries.sort((a, b) => b.avg - a.avg);
   }
 
-  const maxAvg = 5; // max rating
+  const maxAvg = 5;
 
   container.innerHTML = entries.map(e => {
     const pct = (e.avg / maxAvg) * 100;
     return `
       <div class="bar-row">
-        <span class="bar-label" title="${e.label}">${e.label}</span>
+        <span class="bar-label" title="${escapeHtml(e.label)}">${escapeHtml(e.label)}</span>
         <div class="bar-track">
           <div class="bar-fill" style="width: ${pct}%"></div>
         </div>
@@ -385,7 +478,7 @@ function renderBarChart(containerId, dataObj, mode, preserveOrder) {
 function renderCountChart(containerId, dataObj) {
   const container = document.getElementById(containerId);
   if (!dataObj || Object.keys(dataObj).length === 0) {
-    container.innerHTML = '<div class="chart-empty">Waiting for data...</div>';
+    container.innerHTML = '<div class="chart-empty">' + escapeHtml(t('chart_empty')) + '</div>';
     return;
   }
 
@@ -397,9 +490,11 @@ function renderCountChart(containerId, dataObj) {
 
   container.innerHTML = entries.map(e => {
     const pct = (e.count / maxCount) * 100;
+    const flavorKey = 'flavor_' + e.label.toLowerCase().replace(/ .*/, '');
+    const label = t(flavorKey) !== flavorKey ? t(flavorKey) : e.label;
     return `
       <div class="bar-row">
-        <span class="bar-label" title="${e.label}">${e.label}</span>
+        <span class="bar-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
         <div class="bar-track">
           <div class="bar-fill" style="width: ${pct}%"></div>
         </div>
@@ -414,7 +509,6 @@ function renderGaps(data) {
   const grid = $('#gapGrid');
   const origins = ['Ethiopia', 'Colombia', 'Brazil', 'Kenya', 'Guatemala', 'Costa Rica', 'Panama', 'Indonesia'];
   const methods = ['Espresso', 'Pour Over', 'AeroPress', 'French Press'];
-  const existing = data.by_origin || {};
 
   const gaps = [];
   origins.forEach(origin => {
@@ -426,29 +520,26 @@ function renderGaps(data) {
     });
   });
 
-  // Shuffle and take top 8
   const shuffled = gaps.sort(() => Math.random() - 0.5).slice(0, 8);
 
   if (shuffled.length === 0) {
-    grid.innerHTML = '<div class="chart-empty">Great coverage! Keep logging to refine the data.</div>';
+    grid.innerHTML = '<div class="chart-empty">' + escapeHtml(t('explore_covered')) + '</div>';
     return;
   }
 
   grid.innerHTML = shuffled.map(g => `
     <div class="gap-card" onclick="scrollToLog()">
-      <div class="gap-origin">${g.origin}</div>
-      <div class="gap-method">${g.method}</div>
-      <div class="gap-count">${g.count === 0 ? 'No data yet' : g.count + ' brew' + (g.count > 1 ? 's' : '')}</div>
+      <div class="gap-origin">${escapeHtml(g.origin)}</div>
+      <div class="gap-method">${escapeHtml(g.method)}</div>
+      <div class="gap-count">${g.count === 0 ? escapeHtml(t('gap_nodata')) : g.count + '&times;'}</div>
     </div>
   `).join('');
 }
 
 function getComboCount(data, origin, method) {
-  // In the real backend this would be a proper query.
-  // For demo, just return 0 if no data for origin.
   const o = data.by_origin?.[origin];
   if (!o) return 0;
-  return Math.floor(o.count / 3); // rough estimate
+  return Math.floor(o.count / 3);
 }
 
 function scrollToLog() {
@@ -479,41 +570,41 @@ function renderFeed(entries) {
   const list = $('#feedList');
 
   if (!entries || entries.length === 0) {
-    list.innerHTML = '<div class="chart-empty">No brews logged yet. Be the first!</div>';
+    list.innerHTML = '<div class="chart-empty">' + escapeHtml(t('feed_empty')) + '</div>';
     $('#btnLoadMore').hidden = true;
     return;
   }
 
   list.innerHTML = entries.map(e => {
     const flavors = typeof e.flavors === 'string' ? e.flavors : (e.flavors || []).join(', ');
-    const ratingStars = getRatingLabel(e.rating);
     const timeAgo = formatTimeAgo(e.timestamp);
+    const roastKey = 'roast_' + (e.roast || '').toLowerCase();
+    const roastLabel = t(roastKey) !== roastKey ? t(roastKey) : (e.roast || '');
 
     return `
       <div class="feed-card">
         <div class="feed-header">
           <span class="feed-origin">${escapeHtml(e.origin)}</span>
-          <span class="feed-rating">${e.rating}/5 ${ratingStars}</span>
+          <span class="feed-rating">${e.rating}/5</span>
         </div>
         <div class="feed-meta">
           <span class="feed-tag">${escapeHtml(e.process || '')}</span>
-          <span class="feed-tag">${escapeHtml(e.roast || '')} Roast</span>
+          <span class="feed-tag">${escapeHtml(roastLabel)}</span>
           <span class="feed-tag">${escapeHtml(e.brew_method || '')}</span>
-          <span class="feed-tag">${e.treatment_mins} min</span>
+          <span class="feed-tag">${e.treatment_mins} ${escapeHtml(t('time_unit'))}</span>
         </div>
-        ${flavors ? `<div class="feed-meta">${flavors.split(', ').map(f => '<span class="feed-tag">' + escapeHtml(f) + '</span>').join('')}</div>` : ''}
+        ${flavors ? `<div class="feed-meta">${flavors.split(', ').filter(Boolean).map(f => {
+          const flavorKey = 'flavor_' + f.toLowerCase().replace(/ .*/, '');
+          const flavorLabel = t(flavorKey) !== flavorKey ? t(flavorKey) : f;
+          return '<span class="feed-tag">' + escapeHtml(flavorLabel) + '</span>';
+        }).join('')}</div>` : ''}
         ${e.note ? `<p class="feed-note">"${escapeHtml(e.note)}"</p>` : ''}
-        <div class="feed-time">${timeAgo}</div>
+        <div class="feed-time">${escapeHtml(timeAgo)}</div>
       </div>
     `;
   }).join('');
 
   $('#btnLoadMore').hidden = entries.length < CONFIG.feedPageSize;
-}
-
-function getRatingLabel(rating) {
-  const labels = { 1: '', 2: '', 3: '', 4: '', 5: '' };
-  return labels[rating] || '';
 }
 
 function formatTimeAgo(timestamp) {
@@ -522,16 +613,16 @@ function formatTimeAgo(timestamp) {
   const then = new Date(timestamp);
   const diff = Math.floor((now - then) / 1000);
 
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-  if (diff < 604800) return Math.floor(diff / 86400) + 'd ago';
-  return then.toLocaleDateString();
+  if (diff < 60) return t('time_just_now');
+  if (diff < 3600) return Math.floor(diff / 60) + t('time_m_ago');
+  if (diff < 86400) return Math.floor(diff / 3600) + t('time_h_ago');
+  if (diff < 604800) return Math.floor(diff / 86400) + t('time_d_ago');
+  return then.toLocaleDateString(state.lang);
 }
 
 function escapeHtml(str) {
   const div = document.createElement('div');
-  div.textContent = str;
+  div.textContent = str == null ? '' : String(str);
   return div.innerHTML;
 }
 
@@ -542,10 +633,11 @@ async function fetchComments() {
     const res = await fetch('comments.json?_t=' + Date.now());
     if (!res.ok) throw new Error('Failed to load comments');
     const comments = await res.json();
+    state.comments = comments;
     renderComments(comments);
   } catch (err) {
     console.error('Comments fetch error:', err);
-    list.innerHTML = '<div class="chart-empty">Comments unavailable right now.</div>';
+    list.innerHTML = '<div class="chart-empty">' + escapeHtml(t('comments_error')) + '</div>';
   }
 }
 
@@ -553,7 +645,7 @@ function renderComments(comments) {
   const list = $('#commentsList');
 
   if (!comments || comments.length === 0) {
-    list.innerHTML = '<div class="chart-empty">No comments yet.</div>';
+    list.innerHTML = '<div class="chart-empty">' + escapeHtml(t('comments_loading')) + '</div>';
     return;
   }
 
@@ -565,7 +657,7 @@ function renderComments(comments) {
         <p class="comment-text">${escapeHtml(c.text || '')}</p>
         <div class="comment-meta">
           <span class="comment-byline">${byline}</span>
-          ${date ? `<span class="comment-date">${date}</span>` : ''}
+          ${date ? `<span class="comment-date">${escapeHtml(date)}</span>` : ''}
         </div>
       </div>
     `;
@@ -574,6 +666,6 @@ function renderComments(comments) {
 
 function formatCommentDate(dateStr) {
   const d = new Date(dateStr);
-  if (isNaN(d)) return escapeHtml(dateStr);
-  return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleDateString(state.lang, { year: 'numeric', month: 'short', day: 'numeric' });
 }

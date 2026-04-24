@@ -8,116 +8,160 @@
   <meta name="description" content="Community-driven coffee experiments with Acaia Horizon. Log your brews, discover what works, share your findings.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=2">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;1,400&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
+
+  <!-- ===== LANGUAGE SWITCHER ===== -->
+  <div class="lang-switcher" id="langSwitcher">
+    <button data-lang="en" class="active">EN</button>
+    <button data-lang="zh-TW">繁中</button>
+    <button data-lang="zh-CN">简中</button>
+    <button data-lang="fr">FR</button>
+    <button data-lang="es">ES</button>
+    <button data-lang="de">DE</button>
+    <button data-lang="ja">日本</button>
+    <button data-lang="ko">한국</button>
+  </div>
 
   <!-- ===== HERO ===== -->
   <section id="hero" class="hero">
     <div class="hero-content">
       <h1 class="hero-title">Horizon<br>Lab</h1>
-      <p class="hero-tagline">Community Coffee Experiments by Acaia</p>
-      <p class="hero-desc">How does Horizon change your cup? Log your brews, compare results across origins and methods, and help the community discover what works best.</p>
+      <p class="hero-tagline" data-i18n="hero_tagline"></p>
+      <p class="hero-desc" data-i18n="hero_desc"></p>
       <div class="hero-stats">
         <div class="stat-pill">
           <span class="stat-num" id="statBrews">0</span>
-          <span class="stat-label">Brews Logged</span>
+          <span class="stat-label" data-i18n="stat_brews"></span>
         </div>
         <div class="stat-pill">
           <span class="stat-num" id="statOwners">0</span>
-          <span class="stat-label">Contributors</span>
+          <span class="stat-label" data-i18n="stat_owners"></span>
         </div>
         <div class="stat-pill">
           <span class="stat-num" id="statAvgRating">--</span>
-          <span class="stat-label">Avg Rating</span>
+          <span class="stat-label" data-i18n="stat_rating"></span>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- ===== COMMUNITY VOTE ===== -->
+  <section id="vote" class="section">
+    <h2 class="section-title" data-i18n="vote_title"></h2>
+    <p class="section-subtitle" data-i18n="vote_subtitle"></p>
+
+    <div class="chart-card vote-card">
+      <p class="vote-question" data-i18n="vote_question"></p>
+
+      <div class="vote-bar">
+        <div class="vote-bar-header">
+          <span class="vote-bar-label" data-i18n="vote_yes"></span>
+          <span class="vote-bar-pct" id="pctTasteYes">--%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill bar-fill-yes" id="barTasteYes" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="vote-bar">
+        <div class="vote-bar-header">
+          <span class="vote-bar-label" data-i18n="vote_no"></span>
+          <span class="vote-bar-pct" id="pctTasteNo">--%</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill bar-fill-no" id="barTasteNo" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="vote-total" id="totalTasting">-- <span data-i18n="votes_suffix"></span></div>
+    </div>
+  </section>
+
   <!-- ===== DASHBOARD ===== -->
   <section id="dashboard" class="section">
-    <h2 class="section-title">Live Results</h2>
-    <p class="section-subtitle">Aggregated from every brew logged by verified Horizon owners.</p>
+    <h2 class="section-title" data-i18n="live_title"></h2>
+    <p class="section-subtitle" data-i18n="live_subtitle"></p>
 
     <!-- Rating by Origin -->
     <div class="chart-card">
-      <h3 class="chart-title">Average Rating by Origin</h3>
-      <p class="chart-desc">Which coffee origins benefit most from Horizon treatment?</p>
+      <h3 class="chart-title" data-i18n="chart_origin_title"></h3>
+      <p class="chart-desc" data-i18n="chart_origin_desc"></p>
       <div class="bar-chart" id="chartOrigin">
-        <div class="chart-empty">Waiting for data...</div>
+        <div class="chart-empty" data-i18n="chart_empty"></div>
       </div>
     </div>
 
     <!-- Treatment Time Curve -->
     <div class="chart-card">
-      <h3 class="chart-title">Sweet Spot: Treatment Time</h3>
-      <p class="chart-desc">Average taste improvement by minutes of Horizon treatment.</p>
+      <h3 class="chart-title" data-i18n="chart_time_title"></h3>
+      <p class="chart-desc" data-i18n="chart_time_desc"></p>
       <div class="bar-chart" id="chartTime">
-        <div class="chart-empty">Waiting for data...</div>
+        <div class="chart-empty" data-i18n="chart_empty"></div>
       </div>
     </div>
 
     <!-- Rating by Brew Method -->
     <div class="chart-card">
-      <h3 class="chart-title">Rating by Brew Method</h3>
-      <p class="chart-desc">Does Horizon shine more in espresso, pour-over, or immersion?</p>
+      <h3 class="chart-title" data-i18n="chart_method_title"></h3>
+      <p class="chart-desc" data-i18n="chart_method_desc"></p>
       <div class="bar-chart" id="chartMethod">
-        <div class="chart-empty">Waiting for data...</div>
+        <div class="chart-empty" data-i18n="chart_empty"></div>
       </div>
     </div>
 
     <!-- Flavor Shift -->
     <div class="chart-card">
-      <h3 class="chart-title">Flavor Shifts Reported</h3>
-      <p class="chart-desc">Which taste attributes changed most often?</p>
+      <h3 class="chart-title" data-i18n="chart_flavor_title"></h3>
+      <p class="chart-desc" data-i18n="chart_flavor_desc"></p>
       <div class="bar-chart" id="chartFlavor">
-        <div class="chart-empty">Waiting for data...</div>
+        <div class="chart-empty" data-i18n="chart_empty"></div>
       </div>
     </div>
   </section>
 
   <!-- ===== COMMUNITY FEED ===== -->
   <section id="feed" class="section">
-    <h2 class="section-title">Community Feed</h2>
-    <p class="section-subtitle">Recent experiments from Horizon owners around the world.</p>
+    <h2 class="section-title" data-i18n="feed_title"></h2>
+    <p class="section-subtitle" data-i18n="feed_subtitle"></p>
     <div class="feed-list" id="feedList">
-      <div class="chart-empty">No brews logged yet. Be the first!</div>
+      <div class="chart-empty" data-i18n="feed_empty"></div>
     </div>
-    <button class="btn btn-secondary" id="btnLoadMore" hidden>Load More</button>
+    <button class="btn btn-secondary" id="btnLoadMore" data-i18n="feed_load_more" hidden></button>
   </section>
 
   <!-- ===== COMMENTS ===== -->
   <section id="comments" class="section">
-    <h2 class="section-title">What People Are Saying</h2>
-    <p class="section-subtitle">Comments we've received from Horizon owners and testers.</p>
+    <h2 class="section-title" data-i18n="comments_title"></h2>
+    <p class="section-subtitle" data-i18n="comments_subtitle"></p>
     <div class="comments-list" id="commentsList">
-      <div class="chart-empty">Loading comments...</div>
+      <div class="chart-empty" data-i18n="comments_loading"></div>
     </div>
   </section>
 
   <!-- ===== EXPLORE GAP ===== -->
   <section id="explore" class="section">
-    <h2 class="section-title">Help Us Explore</h2>
-    <p class="section-subtitle">These combinations need more data. Try one and log your results!</p>
+    <h2 class="section-title" data-i18n="explore_title"></h2>
+    <p class="section-subtitle" data-i18n="explore_subtitle"></p>
     <div class="gap-grid" id="gapGrid">
-      <div class="chart-empty">Loading suggestions...</div>
+      <div class="chart-empty" data-i18n="explore_loading"></div>
     </div>
   </section>
 
   <!-- ===== SHARE TASTING FEEDBACK ===== -->
   <section id="log" class="section">
-    <h2 class="section-title">Share Your Tasting Feedback</h2>
-    <p class="section-subtitle">Verified Horizon owners: tell us how your coffee tasted with Horizon treatment.</p>
+    <h2 class="section-title" data-i18n="log_title"></h2>
+    <p class="section-subtitle" data-i18n="log_subtitle"></p>
 
     <!-- Step 1: Serial Verification -->
     <div class="form-card" id="verifyCard">
-      <h3 class="form-card-title">Verify Your Horizon</h3>
-      <p class="form-card-desc">Enter your Horizon serial number to get started. You only need to do this once.</p>
+      <h3 class="form-card-title" data-i18n="verify_title"></h3>
+      <p class="form-card-desc" data-i18n="verify_desc"></p>
       <div class="input-row">
-        <input type="text" id="serialInput" class="input" placeholder="e.g. HZ-20260001" autocomplete="off" spellcheck="false">
-        <button class="btn btn-primary" id="btnVerify">Verify</button>
+        <input type="text" id="serialInput" class="input" data-i18n-placeholder="verify_placeholder" autocomplete="off" spellcheck="false">
+        <button class="btn btn-primary" id="btnVerify" data-i18n="btn_verify"></button>
       </div>
       <p class="form-hint" id="verifyMsg"></p>
     </div>
@@ -126,16 +170,16 @@
     <div class="form-card" id="brewCard" hidden>
       <div class="verified-badge" id="verifiedBadge">
         <span class="verified-icon">&#10003;</span>
-        <span>Verified Horizon Owner</span>
-        <button class="btn-text" id="btnLogout">Change Device</button>
+        <span data-i18n="verified_label"></span>
+        <button class="btn-text" id="btnLogout" data-i18n="btn_change_device"></button>
       </div>
 
       <form id="brewForm" autocomplete="off">
         <!-- Coffee Origin -->
         <div class="field">
-          <label class="field-label" for="coffeeOrigin">Coffee Origin</label>
+          <label class="field-label" for="coffeeOrigin" data-i18n="field_origin"></label>
           <select id="coffeeOrigin" class="input" required>
-            <option value="" disabled selected>Select origin...</option>
+            <option value="" disabled selected>—</option>
             <option value="Ethiopia">Ethiopia</option>
             <option value="Colombia">Colombia</option>
             <option value="Brazil">Brazil</option>
@@ -168,9 +212,9 @@
 
         <!-- Process Method -->
         <div class="field">
-          <label class="field-label" for="processMethod">Process Method</label>
+          <label class="field-label" for="processMethod" data-i18n="field_process"></label>
           <select id="processMethod" class="input" required>
-            <option value="" disabled selected>Select process...</option>
+            <option value="" disabled selected>—</option>
             <option value="Washed">Washed</option>
             <option value="Natural">Natural</option>
             <option value="Honey">Honey</option>
@@ -182,28 +226,28 @@
 
         <!-- Roast Level -->
         <div class="field">
-          <label class="field-label">Roast Level</label>
+          <label class="field-label" data-i18n="field_roast"></label>
           <div class="roast-options">
             <label class="radio-card">
               <input type="radio" name="roastLevel" value="Light" required>
-              <span class="radio-label">Light</span>
+              <span class="radio-label" data-i18n="roast_light"></span>
             </label>
             <label class="radio-card">
               <input type="radio" name="roastLevel" value="Medium">
-              <span class="radio-label">Medium</span>
+              <span class="radio-label" data-i18n="roast_medium"></span>
             </label>
             <label class="radio-card">
               <input type="radio" name="roastLevel" value="Dark">
-              <span class="radio-label">Dark</span>
+              <span class="radio-label" data-i18n="roast_dark"></span>
             </label>
           </div>
         </div>
 
         <!-- Brew Method -->
         <div class="field">
-          <label class="field-label" for="brewMethod">Brew Method</label>
+          <label class="field-label" for="brewMethod" data-i18n="field_brew_method"></label>
           <select id="brewMethod" class="input" required>
-            <option value="" disabled selected>Select brew method...</option>
+            <option value="" disabled selected>—</option>
             <option value="Espresso">Espresso</option>
             <option value="Pour Over">Pour Over</option>
             <option value="French Press">French Press</option>
@@ -220,10 +264,10 @@
 
         <!-- Treatment Time -->
         <div class="field">
-          <label class="field-label">Treatment Time (minutes)</label>
+          <label class="field-label" data-i18n="field_time"></label>
           <div class="time-slider-wrap">
             <input type="range" id="treatmentTime" class="slider" min="0.5" max="60" step="0.5" value="5">
-            <div class="time-display"><span id="timeValue">5</span> min</div>
+            <div class="time-display"><span id="timeValue">5</span> <span data-i18n="time_unit"></span></div>
           </div>
           <div class="time-ticks">
             <span>0.5</span><span>5</span><span>15</span><span>30</span><span>60</span>
@@ -232,67 +276,67 @@
 
         <!-- Taste Rating -->
         <div class="field">
-          <label class="field-label">Taste Difference with Horizon</label>
+          <label class="field-label" data-i18n="field_rating"></label>
           <div class="rating-scale">
             <label class="rating-option">
               <input type="radio" name="rating" value="1" required>
               <span class="rating-dot"></span>
-              <span class="rating-text">No difference</span>
+              <span class="rating-text" data-i18n="rating_1"></span>
             </label>
             <label class="rating-option">
               <input type="radio" name="rating" value="2">
               <span class="rating-dot"></span>
-              <span class="rating-text">Slight</span>
+              <span class="rating-text" data-i18n="rating_2"></span>
             </label>
             <label class="rating-option">
               <input type="radio" name="rating" value="3">
               <span class="rating-dot"></span>
-              <span class="rating-text">Noticeable</span>
+              <span class="rating-text" data-i18n="rating_3"></span>
             </label>
             <label class="rating-option">
               <input type="radio" name="rating" value="4">
               <span class="rating-dot"></span>
-              <span class="rating-text">Significant</span>
+              <span class="rating-text" data-i18n="rating_4"></span>
             </label>
             <label class="rating-option">
               <input type="radio" name="rating" value="5">
               <span class="rating-dot"></span>
-              <span class="rating-text">Dramatic</span>
+              <span class="rating-text" data-i18n="rating_5"></span>
             </label>
           </div>
         </div>
 
         <!-- Flavor Tags -->
         <div class="field">
-          <label class="field-label">Which flavors changed? <span class="field-hint">(select all that apply)</span></label>
+          <label class="field-label"><span data-i18n="field_flavors"></span> <span class="field-hint" data-i18n="field_flavors_hint"></span></label>
           <div class="flavor-chips">
-            <label class="chip"><input type="checkbox" name="flavors" value="Sweetness"><span>Sweetness</span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Acidity"><span>Acidity</span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Body"><span>Body</span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Smoothness"><span>Smoothness</span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Clarity"><span>Clarity</span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Bitterness"><span>Bitterness (reduced)</span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Aroma"><span>Aroma</span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Aftertaste"><span>Aftertaste</span></label>
+            <label class="chip"><input type="checkbox" name="flavors" value="Sweetness"><span data-i18n="flavor_sweetness"></span></label>
+            <label class="chip"><input type="checkbox" name="flavors" value="Acidity"><span data-i18n="flavor_acidity"></span></label>
+            <label class="chip"><input type="checkbox" name="flavors" value="Body"><span data-i18n="flavor_body"></span></label>
+            <label class="chip"><input type="checkbox" name="flavors" value="Smoothness"><span data-i18n="flavor_smoothness"></span></label>
+            <label class="chip"><input type="checkbox" name="flavors" value="Clarity"><span data-i18n="flavor_clarity"></span></label>
+            <label class="chip"><input type="checkbox" name="flavors" value="Bitterness"><span data-i18n="flavor_bitterness"></span></label>
+            <label class="chip"><input type="checkbox" name="flavors" value="Aroma"><span data-i18n="flavor_aroma"></span></label>
+            <label class="chip"><input type="checkbox" name="flavors" value="Aftertaste"><span data-i18n="flavor_aftertaste"></span></label>
           </div>
         </div>
 
         <!-- Notes -->
         <div class="field">
-          <label class="field-label" for="brewNote">Tasting Notes <span class="field-hint">(optional)</span></label>
-          <textarea id="brewNote" class="input textarea" placeholder="e.g. Floral notes became more pronounced after 5 min..." maxlength="280" rows="3"></textarea>
+          <label class="field-label" for="brewNote"><span data-i18n="field_note"></span> <span class="field-hint" data-i18n="field_note_hint"></span></label>
+          <textarea id="brewNote" class="input textarea" data-i18n-placeholder="field_note_placeholder" maxlength="280" rows="3"></textarea>
           <div class="char-count"><span id="charCount">0</span>/280</div>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-submit" id="btnSubmit">Submit Feedback</button>
+        <button type="submit" class="btn btn-primary btn-submit" id="btnSubmit" data-i18n="btn_submit"></button>
       </form>
 
       <!-- Success state -->
       <div class="submit-success" id="submitSuccess" hidden>
         <div class="success-icon">&#10003;</div>
-        <h3>Feedback Submitted!</h3>
-        <p>Your tasting feedback has been added to the community data. Results will update shortly.</p>
-        <button class="btn btn-primary" id="btnLogAnother">Submit Another</button>
+        <h3 data-i18n="success_title"></h3>
+        <p data-i18n="success_desc"></p>
+        <button class="btn btn-primary" id="btnLogAnother" data-i18n="btn_submit_another"></button>
       </div>
     </div>
   </section>
@@ -304,9 +348,10 @@
         <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.17.054 1.97.24 2.43.403a4.088 4.088 0 011.47.957c.453.453.777.91.957 1.47.163.46.35 1.26.403 2.43.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.054 1.17-.24 1.97-.403 2.43a4.088 4.088 0 01-.957 1.47 4.088 4.088 0 01-1.47.957c-.46.163-1.26.35-2.43.403-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.17-.054-1.97-.24-2.43-.403a4.088 4.088 0 01-1.47-.957 4.088 4.088 0 01-.957-1.47c-.163-.46-.35-1.26-.403-2.43C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.054-1.17.24-1.97.403-2.43a4.088 4.088 0 01.957-1.47A4.088 4.088 0 015.063 2.293c.46-.163 1.26-.35 2.43-.403C8.759 1.832 9.139 1.82 12 1.82zm0-1.663C8.741.5 8.332.514 7.052.573 5.775.63 4.902.822 4.14 1.104a5.756 5.756 0 00-2.077 1.352A5.756 5.756 0 00.71 4.533C.428 5.295.237 6.168.18 7.445.12 8.725.107 9.134.107 12.393s.014 3.668.073 4.948c.057 1.277.249 2.15.531 2.912a5.756 5.756 0 001.352 2.077 5.756 5.756 0 002.077 1.352c.762.282 1.635.474 2.912.531 1.28.059 1.689.073 4.948.073s3.668-.014 4.948-.073c1.277-.057 2.15-.249 2.912-.531a5.756 5.756 0 002.077-1.352 5.756 5.756 0 001.352-2.077c.282-.762.474-1.635.531-2.912.059-1.28.073-1.689.073-4.948s-.014-3.668-.073-4.948c-.057-1.277-.249-2.15-.531-2.912a5.756 5.756 0 00-1.352-2.077A5.756 5.756 0 0019.86 1.104C19.098.822 18.225.63 16.948.573 15.668.514 15.259.5 12 .5z"/><path d="M12 6.365a5.635 5.635 0 100 11.27 5.635 5.635 0 000-11.27zm0 9.297a3.662 3.662 0 110-7.325 3.662 3.662 0 010 7.325z"/><circle cx="18.406" cy="5.594" r="1.44"/></svg>
       </a>
     </div>
-    <p class="footer-brand">Horizon Lab &mdash; A community project by <strong><a href="https://acaia.co" target="_blank" rel="noopener">Acaia</a></strong></p>
+    <p class="footer-brand" data-i18n-html="footer_brand"></p>
   </footer>
 
-  <script src="app.js?v=1"></script>
+  <script src="translations.js?v=1"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>
