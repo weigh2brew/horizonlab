@@ -146,7 +146,7 @@ function handleSubmitBrew(payload) {
   const process = sanitize(payload.process, 20);
   const roast = sanitize(payload.roast, 10);
   const brewMethod = sanitize(payload.brew_method, 20);
-  const treatmentMins = Math.max(0.5, Math.min(60, parseFloat(payload.treatment_mins) || 5));
+  const treatmentMins = Math.max(0.25, Math.min(60, parseFloat(payload.treatment_mins) || 5));
   const rating = Math.max(1, Math.min(5, parseInt(payload.rating) || 3));
   const flavors = sanitize(payload.flavors, 200);
   const note = sanitize(payload.note, 280);

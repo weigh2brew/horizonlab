@@ -216,7 +216,7 @@ function initForm() {
     $('#submitSuccess').hidden = true;
     $('#brewForm').style.display = '';
     $('#brewForm').reset();
-    $('#timeValue').textContent = '5';
+    $('#timeValue').textContent = formatTreatment($('#treatmentTime').value);
     $('#charCount').textContent = '0';
   });
 
@@ -225,14 +225,23 @@ function initForm() {
   });
 }
 
+function formatTreatment(mins) {
+  const totalSeconds = Math.round(parseFloat(mins) * 60);
+  if (totalSeconds < 60) return totalSeconds + 's';
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return s === 0 ? m + 'm' : m + 'm ' + s + 's';
+}
+
 function initSlider() {
   const slider = $('#treatmentTime');
   const display = $('#timeValue');
 
-  slider.addEventListener('input', () => {
-    const val = parseFloat(slider.value);
-    display.textContent = val % 1 === 0 ? val.toFixed(0) : val.toFixed(1);
-  });
+  const update = () => {
+    display.textContent = formatTreatment(slider.value);
+  };
+  update();
+  slider.addEventListener('input', update);
 }
 
 async function handleSubmit(e) {
@@ -590,7 +599,7 @@ function renderFeed(entries) {
           <span class="feed-tag">${escapeHtml(e.process || '')}</span>
           <span class="feed-tag">${escapeHtml(roastLabel)}</span>
           <span class="feed-tag">${escapeHtml(e.brew_method || '')}</span>
-          <span class="feed-tag">${e.treatment_mins} ${escapeHtml(t('time_unit'))}</span>
+          <span class="feed-tag">${escapeHtml(formatTreatment(e.treatment_mins))}</span>
         </div>
         ${flavors ? `<div class="feed-meta">${flavors.split(', ').filter(Boolean).map(f => {
           const flavorKey = 'flavor_' + f.toLowerCase().replace(/ .*/, '');
