@@ -166,7 +166,8 @@ async function handleVerify() {
       const demoToken = 'demo_' + btoa(serial).slice(0, 16);
       onVerifySuccess(serial, demoToken);
     } else {
-      const url = CONFIG.sheetUrl + '?action=verify&serial=' + encodeURIComponent(serial);
+      const url = CONFIG.sheetUrl + '?action=verify&serial=' + encodeURIComponent(serial)
+        + '&ua=' + encodeURIComponent(navigator.userAgent || '');
       const res = await fetch(url);
       const json = await res.json();
 

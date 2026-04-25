@@ -2,39 +2,42 @@
  * Horizon Lab — Google Apps Script Backend
  *
  * This script reads/writes the same Google Sheet that horizonvote uses,
- * but via tabs it owns (serials / brews / stats). The existing horizonvote
+ * via tabs it owns (verify_log / brews / stats). The existing horizonvote
  * key-value tab is untouched. Because this script opens the sheet by ID,
  * it can be a standalone Apps Script — it does NOT need to be container-
  * bound to the sheet.
  *
+ * Verification model: format-only. We do NOT keep a whitelist of valid
+ * serials — anything matching the AHN101 format passes. Every successful
+ * verify is appended to the verify_log tab so we have a record of who
+ * accessed the form.
+ *
  * SETUP:
  * 1. In the shared Google Sheet, add three new tabs (leave the existing
  *    horizonvote tab alone):
- *    - "serials"  — Column A: serial, Column B: registered_token,
- *                   Column C: registered_at, Column D: ig_handle
- *    - "brews"    — timestamp | serial_hash | origin | process | roast |
- *                   brew_method | treatment_mins | rating | flavors | note
- *    - "stats"    — Column A: key, Column B: value (cache)
+ *    - "verify_log" — timestamp | serial | token | user_agent
+ *    - "brews"      — timestamp | serial_hash | origin | process | roast |
+ *                      brew_method | treatment_mins | rating | flavors | note
+ *    - "stats"      — Column A: key, Column B: value (aggregates cache)
  *
- * 2. In "serials" tab Column A, paste the valid Horizon serial numbers
- *    from manufacturing. Leave columns B-D blank.
+ *    The verify_log and brews tabs should have a header row in row 1.
  *
- * 3. Create a new Apps Script project at script.google.com (standalone,
- *    not bound to the sheet). Paste this entire file in. Deploy as
+ * 2. Create a new Apps Script project at script.google.com (standalone,
+ *    not bound to any sheet). Paste this entire file in. Deploy as
  *    Web App with:
  *      - Execute as: Me
  *      - Who has access: Anyone
  *    On first run, authorize the "See, edit, create, and delete..."
  *    scope so the script can read/write the sheet by ID.
  *
- * 4. Copy the deployment URL into app.js CONFIG.sheetUrl.
+ * 3. Copy the deployment URL into app.js CONFIG.sheetUrl.
  */
 
 // ---------- SHEET CONFIG ----------
 // Shared with horizonvote. Find in the sheet URL:
 //   https://docs.google.com/spreadsheets/d/<ID>/edit
 const SHEET_ID = '17qM1uriZ4QgXbO0iwibxLO5LIw1f6Vit0h2X7ws7-Vs';
-const SHEET_SERIALS = 'serials';
+const SHEET_VERIFY_LOG = 'verify_log';
 const SHEET_BREWS = 'brews';
 const SHEET_STATS = 'stats';
 
@@ -94,43 +97,37 @@ function handleVerify(params) {
   if (!serial) return VERIFY_FAIL;
   if (!HORIZON_SERIAL.test(serial)) return VERIFY_FAIL;
 
+  // Format passed — issue a token and log the access.
+  const token = Utilities.getUuid();
+  const userAgent = (params.ua || '').toString().slice(0, 200);
+
   const ss = openSheet();
-  const sheet = ss.getSheetByName(SHEET_SERIALS);
-  const data = sheet.getDataRange().getValues();
-
-  for (let i = 1; i < data.length; i++) {
-    const rowSerial = String(data[i][0]).replace(/[^A-Za-z0-9]/g, '').toUpperCase();
-    if (rowSerial === serial) {
-      // Already registered? Return existing token.
-      const existingToken = data[i][1];
-      if (existingToken) {
-        return { success: true, token: existingToken };
-      }
-
-      // First-time registration: generate token and save
-      const token = Utilities.getUuid();
-      sheet.getRange(i + 1, 2).setValue(token);                          // Column B: token
-      sheet.getRange(i + 1, 3).setValue(new Date().toISOString());       // Column C: registered_at
-      return { success: true, token: token };
-    }
+  const sheet = ss.getSheetByName(SHEET_VERIFY_LOG);
+  if (sheet) {
+    sheet.appendRow([
+      new Date().toISOString(),  // timestamp
+      serial,                    // serial
+      token,                     // token
+      userAgent,                 // user_agent (optional, for spam triage)
+    ]);
   }
 
-  return VERIFY_FAIL;
+  return { success: true, token: token };
 }
 
 // ---------- SUBMIT BREW ----------
 function handleSubmitBrew(payload) {
-  // Validate token
+  // Validate token: must exist in verify_log column C.
   const token = payload.token;
   if (!token) return { success: false, error: 'Missing token.' };
 
   const ss = openSheet();
-  const serialSheet = ss.getSheetByName(SHEET_SERIALS);
-  const serialData = serialSheet.getDataRange().getValues();
+  const logSheet = ss.getSheetByName(SHEET_VERIFY_LOG);
+  const logData = logSheet ? logSheet.getDataRange().getValues() : [];
   let tokenValid = false;
 
-  for (let i = 1; i < serialData.length; i++) {
-    if (serialData[i][1] === token) {
+  for (let i = 1; i < logData.length; i++) {
+    if (logData[i][2] === token) {
       tokenValid = true;
       break;
     }
