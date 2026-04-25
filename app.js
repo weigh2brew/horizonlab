@@ -4,7 +4,7 @@
 const CONFIG = {
   // Horizon Lab's own Apps Script backend (brew verification + submission).
   // Leave blank to run in demo mode (localStorage only).
-  sheetUrl: '',
+  sheetUrl: 'https://script.google.com/macros/s/AKfycbxrCLVsjmxSdJMhlLebFOjwRMcwGxiopXFWkSRUJYCPQ2kXd1Rd7PkmxlJcHLXACSaQ/exec',
   pollInterval: 30000,
   feedPageSize: 10,
 
