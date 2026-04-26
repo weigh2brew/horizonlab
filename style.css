@@ -763,6 +763,7 @@ select.input {
   line-height: 1.65;
   margin-bottom: 14px;
   letter-spacing: 0.02em;
+  white-space: pre-wrap;
 }
 
 .comment-meta {
