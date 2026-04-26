@@ -216,6 +216,7 @@ function initForm() {
     $('#submitSuccess').hidden = true;
     $('#brewForm').style.display = '';
     $('#brewForm').reset();
+    $('#treatmentTimeManual').value = $('#treatmentTime').value;
     $('#timeValue').textContent = formatTreatment($('#treatmentTime').value);
     $('#charCount').textContent = '0';
   });
@@ -235,13 +236,30 @@ function formatTreatment(mins) {
 
 function initSlider() {
   const slider = $('#treatmentTime');
+  const manual = $('#treatmentTimeManual');
   const display = $('#timeValue');
+  const sliderMax = parseFloat(slider.max);
 
-  const update = () => {
-    display.textContent = formatTreatment(slider.value);
+  const setDisplay = (mins) => {
+    display.textContent = formatTreatment(mins);
   };
-  update();
-  slider.addEventListener('input', update);
+
+  slider.addEventListener('input', () => {
+    const v = parseFloat(slider.value);
+    manual.value = v;
+    setDisplay(v);
+  });
+
+  manual.addEventListener('input', () => {
+    const raw = parseFloat(manual.value);
+    if (isNaN(raw)) return;
+    const v = Math.max(0.25, Math.min(480, raw));
+    // Slider follows manual when within slider range; otherwise pinned to max.
+    slider.value = String(Math.min(sliderMax, v));
+    setDisplay(v);
+  });
+
+  setDisplay(parseFloat(manual.value) || parseFloat(slider.value));
 }
 
 async function handleSubmit(e) {
@@ -255,7 +273,7 @@ async function handleSubmit(e) {
     process: $('#processMethod').value,
     roast: form.querySelector('input[name="roastLevel"]:checked')?.value,
     brew_method: $('#brewMethod').value,
-    treatment_mins: parseFloat($('#treatmentTime').value),
+    treatment_mins: parseFloat($('#treatmentTimeManual').value) || parseFloat($('#treatmentTime').value),
     rating: parseInt(form.querySelector('input[name="rating"]:checked')?.value, 10),
     flavors: Array.from(form.querySelectorAll('input[name="flavors"]:checked')).map(c => c.value),
     note: $('#brewNote').value.trim(),
@@ -382,7 +400,7 @@ function getDemoAggregates() {
   try { feed = JSON.parse(localStorage.getItem('horizonlab_demo_feed') || '[]'); } catch {}
 
   if (feed.length === 0) {
-    return { total_brews: 0, total_owners: 0, avg_rating: 0, by_origin: {}, by_time: {}, by_method: {}, by_flavor: {} };
+    return { total_brews: 0, total_owners: 0, approval_pct: null, by_origin: {}, by_time: {}, by_method: {}, by_flavor: {} };
   }
 
   const byOrigin = {};
@@ -390,11 +408,12 @@ function getDemoAggregates() {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  let totalRating = 0;
+  // "Positive" = top-2-box (rating 4 or 5: Significant or Dramatic).
+  let positiveCount = 0;
 
   feed.forEach(f => {
     owners.add(f.serial_prefix);
-    totalRating += f.rating;
+    if (f.rating >= 4) positiveCount++;
 
     if (!byOrigin[f.origin]) byOrigin[f.origin] = { sum: 0, count: 0 };
     byOrigin[f.origin].sum += f.rating;
@@ -418,7 +437,7 @@ function getDemoAggregates() {
   return {
     total_brews: feed.length,
     total_owners: owners.size,
-    avg_rating: (totalRating / feed.length).toFixed(1),
+    approval_pct: Math.round((positiveCount / feed.length) * 100),
     by_origin: byOrigin,
     by_time: byTime,
     by_method: byMethod,
@@ -438,8 +457,8 @@ function getTimeBucket(mins) {
 function renderDashboard(data) {
   $('#statBrews').textContent = (data.total_brews || 0).toLocaleString();
   $('#statOwners').textContent = (data.total_owners || 0).toLocaleString();
-  $('#statAvgRating').textContent = data.avg_rating && data.avg_rating > 0
-    ? data.avg_rating + '/5'
+  $('#statApproval').textContent = (data.approval_pct != null && data.total_brews > 0)
+    ? data.approval_pct + '%'
     : '--';
 
   renderBarChart('chartOrigin', data.by_origin, 'avg');

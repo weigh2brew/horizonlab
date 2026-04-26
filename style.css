@@ -632,6 +632,31 @@ select.input {
   padding: 0 2px;
 }
 
+.time-manual {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.03em;
+}
+
+.time-manual-label { white-space: nowrap; }
+
+.time-manual-input {
+  width: 88px;
+  height: 2.25rem;
+  padding: 0 10px;
+  font-size: 0.8125rem;
+  text-align: right;
+}
+
+.time-manual-unit {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
 /* Flavor chips */
 .flavor-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 

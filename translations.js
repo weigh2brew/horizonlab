@@ -10,7 +10,8 @@ const TRANSLATIONS = {
     hero_desc: 'How does Horizon change your cup? Share your tasting feedback, compare results across origins and methods, and help the community discover what works best.',
     stat_brews: 'Tastings Logged',
     stat_owners: 'Contributors',
-    stat_rating: 'Avg Rating',
+    stat_approval: 'Approval',
+    time_manual_label: 'Or longer:',
 
     vote_title: 'Community Vote',
     vote_subtitle: 'Live results from Event Horizon tastings worldwide.',
@@ -110,7 +111,8 @@ const TRANSLATIONS = {
     hero_desc: 'Horizon 如何改變你的咖啡？分享你的品飲心得，比較不同產區與沖煮方式的結果，一起發掘最佳風味組合。',
     stat_brews: '品飲紀錄',
     stat_owners: '貢獻者',
-    stat_rating: '平均評分',
+    stat_approval: '滿意度',
+    time_manual_label: '或更長：',
 
     vote_title: '社群票選',
     vote_subtitle: '來自全球 Event Horizon 品飲會的即時結果。',
@@ -210,7 +212,8 @@ const TRANSLATIONS = {
     hero_desc: 'Horizon 如何改变你的咖啡？分享你的品鉴反馈，比较不同产区与冲煮方式的结果，一起发掘最佳风味组合。',
     stat_brews: '品鉴记录',
     stat_owners: '贡献者',
-    stat_rating: '平均评分',
+    stat_approval: '满意度',
+    time_manual_label: '或更长：',
 
     vote_title: '社群投票',
     vote_subtitle: '来自全球 Event Horizon 品鉴会的实时结果。',
@@ -310,7 +313,8 @@ const TRANSLATIONS = {
     hero_desc: "Comment Horizon transforme-t-il votre tasse ? Partagez vos impressions de dégustation, comparez les résultats selon les origines et méthodes, et aidez la communauté à découvrir ce qui fonctionne le mieux.",
     stat_brews: 'Dégustations',
     stat_owners: 'Contributeurs',
-    stat_rating: 'Note moyenne',
+    stat_approval: 'Approbation',
+    time_manual_label: 'Ou plus long :',
 
     vote_title: 'Vote communautaire',
     vote_subtitle: 'Résultats en direct des dégustations Event Horizon dans le monde entier.',
@@ -410,7 +414,8 @@ const TRANSLATIONS = {
     hero_desc: '¿Cómo cambia Horizon tu taza? Comparte tus impresiones de cata, compara resultados por origen y método, y ayuda a la comunidad a descubrir lo que mejor funciona.',
     stat_brews: 'Catas registradas',
     stat_owners: 'Colaboradores',
-    stat_rating: 'Nota media',
+    stat_approval: 'Aprobación',
+    time_manual_label: 'O más largo:',
 
     vote_title: 'Voto comunitario',
     vote_subtitle: 'Resultados en vivo de las catas Event Horizon en todo el mundo.',
@@ -510,7 +515,8 @@ const TRANSLATIONS = {
     hero_desc: 'Wie verändert Horizon deine Tasse? Teile dein Verkostungs-Feedback, vergleiche Ergebnisse nach Herkunft und Methode und hilf der Community herauszufinden, was am besten funktioniert.',
     stat_brews: 'Verkostungen',
     stat_owners: 'Beitragende',
-    stat_rating: 'Ø Bewertung',
+    stat_approval: 'Zustimmung',
+    time_manual_label: 'Oder länger:',
 
     vote_title: 'Community-Abstimmung',
     vote_subtitle: 'Live-Ergebnisse von Event Horizon-Verkostungen weltweit.',
@@ -610,7 +616,8 @@ const TRANSLATIONS = {
     hero_desc: 'Horizon はあなたの一杯をどう変える？テイスティングの感想を共有し、産地や抽出方法ごとの結果を比較し、コミュニティで最適な組み合わせを見つけましょう。',
     stat_brews: 'テイスティング記録',
     stat_owners: '投稿者',
-    stat_rating: '平均評価',
+    stat_approval: '満足度',
+    time_manual_label: 'または長め：',
 
     vote_title: 'コミュニティ投票',
     vote_subtitle: '世界各地の Event Horizon テイスティングのリアルタイム結果。',
@@ -710,7 +717,8 @@ const TRANSLATIONS = {
     hero_desc: 'Horizon은 당신의 한 잔을 어떻게 바꾸나요? 테이스팅 피드백을 공유하고, 원산지와 추출 방식별 결과를 비교하며, 커뮤니티와 함께 최적의 조합을 찾아보세요.',
     stat_brews: '테이스팅 기록',
     stat_owners: '기여자',
-    stat_rating: '평균 평점',
+    stat_approval: '만족도',
+    time_manual_label: '또는 더 길게:',
 
     vote_title: '커뮤니티 투표',
     vote_subtitle: '전 세계 Event Horizon 테이스팅의 실시간 결과.',

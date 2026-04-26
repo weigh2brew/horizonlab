@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;1,400&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=4">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -41,8 +41,8 @@
           <span class="stat-label" data-i18n="stat_owners"></span>
         </div>
         <div class="stat-pill">
-          <span class="stat-num" id="statAvgRating">--</span>
-          <span class="stat-label" data-i18n="stat_rating"></span>
+          <span class="stat-num" id="statApproval">--</span>
+          <span class="stat-label" data-i18n="stat_approval"></span>
         </div>
       </div>
     </div>
@@ -250,15 +250,6 @@
             <option value="" disabled selected>—</option>
             <option value="Espresso">Espresso</option>
             <option value="Pour Over">Pour Over</option>
-            <option value="French Press">French Press</option>
-            <option value="AeroPress">AeroPress</option>
-            <option value="Moka Pot">Moka Pot</option>
-            <option value="Cold Brew">Cold Brew</option>
-            <option value="Siphon">Siphon</option>
-            <option value="Cupping">Cupping</option>
-            <option value="Drip Machine">Drip Machine</option>
-            <option value="Turkish">Turkish</option>
-            <option value="Other">Other</option>
           </select>
         </div>
 
@@ -266,11 +257,16 @@
         <div class="field">
           <label class="field-label" data-i18n="field_time"></label>
           <div class="time-slider-wrap">
-            <input type="range" id="treatmentTime" class="slider" min="0.25" max="60" step="0.25" value="5">
-            <div class="time-display"><span id="timeValue">5m</span></div>
+            <input type="range" id="treatmentTime" class="slider" min="0.25" max="3" step="0.25" value="1">
+            <div class="time-display"><span id="timeValue">1m</span></div>
           </div>
           <div class="time-ticks">
-            <span>15s</span><span>1m</span><span>15m</span><span>30m</span><span>60m</span>
+            <span>15s</span><span>1m</span><span>2m</span><span>3m</span>
+          </div>
+          <div class="time-manual">
+            <span class="time-manual-label" data-i18n="time_manual_label"></span>
+            <input type="number" id="treatmentTimeManual" class="input time-manual-input" min="0.25" max="480" step="0.25" value="1">
+            <span class="time-manual-unit" data-i18n="time_unit"></span>
           </div>
         </div>
 
@@ -351,7 +347,7 @@
     <p class="footer-brand" data-i18n-html="footer_brand"></p>
   </footer>
 
-  <script src="translations.js?v=4"></script>
-  <script src="app.js?v=7"></script>
+  <script src="translations.js?v=5"></script>
+  <script src="app.js?v=8"></script>
 </body>
 </html>

@@ -146,7 +146,7 @@ function handleSubmitBrew(payload) {
   const process = sanitize(payload.process, 20);
   const roast = sanitize(payload.roast, 10);
   const brewMethod = sanitize(payload.brew_method, 20);
-  const treatmentMins = Math.max(0.25, Math.min(60, parseFloat(payload.treatment_mins) || 5));
+  const treatmentMins = Math.max(0.25, Math.min(480, parseFloat(payload.treatment_mins) || 5));
   const rating = Math.max(1, Math.min(5, parseInt(payload.rating) || 3));
   const flavors = sanitize(payload.flavors, 200);
   const note = sanitize(payload.note, 280);
@@ -193,7 +193,7 @@ function handleReadAggregates() {
   const data = brewSheet.getDataRange().getValues();
 
   if (data.length <= 1) {
-    return { total_brews: 0, total_owners: 0, avg_rating: 0, by_origin: {}, by_time: {}, by_method: {}, by_flavor: {} };
+    return { total_brews: 0, total_owners: 0, approval_pct: null, by_origin: {}, by_time: {}, by_method: {}, by_flavor: {} };
   }
 
   const byOrigin = {};
@@ -201,7 +201,8 @@ function handleReadAggregates() {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  let totalRating = 0;
+  // "Positive" = top-2-box (rating 4 or 5).
+  let positiveCount = 0;
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
@@ -213,7 +214,7 @@ function handleReadAggregates() {
     const flavors = String(row[8] || '');
 
     owners.add(serialHash);
-    totalRating += rating;
+    if (rating >= 4) positiveCount++;
 
     // By origin
     if (!byOrigin[origin]) byOrigin[origin] = { sum: 0, count: 0 };
@@ -242,7 +243,7 @@ function handleReadAggregates() {
   const result = {
     total_brews: totalBrews,
     total_owners: owners.size,
-    avg_rating: (totalRating / totalBrews).toFixed(1),
+    approval_pct: Math.round((positiveCount / totalBrews) * 100),
     by_origin: byOrigin,
     by_time: byTime,
     by_method: byMethod,
