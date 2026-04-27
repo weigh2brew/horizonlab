@@ -341,15 +341,15 @@ body {
 /* ===== EXPLORER (filtered dashboard) ===== */
 .explorer-filters {
   display: flex;
-  gap: 10px;
-  margin-bottom: 16px;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .explorer-filter {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 
 .explorer-filter-label {
@@ -358,7 +358,38 @@ body {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--text-muted);
-  padding-left: 4px;
+}
+
+.filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter-pill {
+  font-family: var(--font);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  padding: 7px 14px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--ease-fast);
+  white-space: nowrap;
+}
+
+.filter-pill:hover {
+  border-color: var(--text-muted);
+  color: var(--black);
+}
+
+.filter-pill.active {
+  background: var(--black);
+  border-color: var(--black);
+  color: var(--white);
 }
 
 .summary-card { padding: 24px; }

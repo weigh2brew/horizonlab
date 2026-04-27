@@ -106,13 +106,16 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initFilters() {
-  const onChange = () => {
-    state.filters.process = $('#filterProcess').value;
-    state.filters.roast = $('#filterRoast').value;
-    fetchDashboard();
-  };
-  $('#filterProcess').addEventListener('change', onChange);
-  $('#filterRoast').addEventListener('change', onChange);
+  document.querySelectorAll('.filter-pills').forEach(group => {
+    const filterKey = group.dataset.filter; // 'process' or 'roast'
+    group.addEventListener('click', e => {
+      const btn = e.target.closest('button[data-value]');
+      if (!btn) return;
+      group.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
+      state.filters[filterKey] = btn.dataset.value;
+      fetchDashboard();
+    });
+  });
 }
 
 // ---------- SCROLL FADE ----------

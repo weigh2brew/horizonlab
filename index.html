@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;1,400&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=7">
+  <link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -87,25 +87,25 @@
 
     <div class="explorer-filters">
       <div class="explorer-filter">
-        <label class="explorer-filter-label" for="filterProcess" data-i18n="filter_process"></label>
-        <select id="filterProcess" class="input">
-          <option value="" data-i18n="filter_all"></option>
-          <option value="Washed">Washed</option>
-          <option value="Natural">Natural</option>
-          <option value="Honey">Honey</option>
-          <option value="Anaerobic">Anaerobic</option>
-          <option value="Cofermented">Cofermented</option>
-          <option value="Unknown">Unknown</option>
-        </select>
+        <label class="explorer-filter-label" data-i18n="filter_process"></label>
+        <div class="filter-pills" data-filter="process">
+          <button type="button" class="filter-pill active" data-value="" data-i18n="filter_all"></button>
+          <button type="button" class="filter-pill" data-value="Washed">Washed</button>
+          <button type="button" class="filter-pill" data-value="Natural">Natural</button>
+          <button type="button" class="filter-pill" data-value="Honey">Honey</button>
+          <button type="button" class="filter-pill" data-value="Anaerobic">Anaerobic</button>
+          <button type="button" class="filter-pill" data-value="Cofermented">Cofermented</button>
+          <button type="button" class="filter-pill" data-value="Unknown">Unknown</button>
+        </div>
       </div>
       <div class="explorer-filter">
-        <label class="explorer-filter-label" for="filterRoast" data-i18n="filter_roast"></label>
-        <select id="filterRoast" class="input">
-          <option value="" data-i18n="filter_all"></option>
-          <option value="Light" data-i18n="roast_light"></option>
-          <option value="Medium" data-i18n="roast_medium"></option>
-          <option value="Dark" data-i18n="roast_dark"></option>
-        </select>
+        <label class="explorer-filter-label" data-i18n="filter_roast"></label>
+        <div class="filter-pills" data-filter="roast">
+          <button type="button" class="filter-pill active" data-value="" data-i18n="filter_all"></button>
+          <button type="button" class="filter-pill" data-value="Light" data-i18n="roast_light"></button>
+          <button type="button" class="filter-pill" data-value="Medium" data-i18n="roast_medium"></button>
+          <button type="button" class="filter-pill" data-value="Dark" data-i18n="roast_dark"></button>
+        </div>
       </div>
     </div>
 
@@ -353,6 +353,6 @@
   </footer>
 
   <script src="translations.js?v=9"></script>
-  <script src="app.js?v=13"></script>
+  <script src="app.js?v=14"></script>
 </body>
 </html>
