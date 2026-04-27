@@ -338,6 +338,97 @@ body {
   font-size: 0.6875rem;
 }
 
+/* ===== EXPLORER (filtered dashboard) ===== */
+.explorer-filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.explorer-filter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.explorer-filter-label {
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding-left: 4px;
+}
+
+.summary-card { padding: 24px; }
+
+.summary-headline {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 14px;
+}
+
+.summary-headline strong {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--black);
+  letter-spacing: 0;
+  display: block;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.summary-stats {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+  justify-content: center;
+}
+
+.summary-pill {
+  flex: 1;
+  background: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  text-align: center;
+  border: 1px solid var(--border);
+}
+
+.summary-pill-num {
+  display: block;
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--black);
+  letter-spacing: 0;
+  line-height: 1.2;
+}
+
+.summary-pill-label {
+  display: block;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.summary-flavors-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--black);
+  margin-bottom: 12px;
+}
+
+.summary-flavors .bar-fill { background: var(--green); }
+
 /* ===== COMMUNITY VOTE ===== */
 .vote-card { padding: 28px 24px; }
 

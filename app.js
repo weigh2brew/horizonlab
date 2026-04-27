@@ -24,6 +24,7 @@ const state = {
   feedOffset: 0,
   comments: null,
   votes: null,
+  filters: { process: '', roast: '' },
 };
 
 // ---------- DOM ----------
@@ -96,6 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initVerification();
   initForm();
   initSlider();
+  initFilters();
   fetchDashboard();
   fetchFeed();
   fetchComments();
@@ -103,6 +105,16 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(fetchDashboard, CONFIG.pollInterval);
   setInterval(fetchVotes, CONFIG.voteInterval);
 });
+
+function initFilters() {
+  const onChange = () => {
+    state.filters.process = $('#filterProcess').value;
+    state.filters.roast = $('#filterRoast').value;
+    fetchDashboard();
+  };
+  $('#filterProcess').addEventListener('change', onChange);
+  $('#filterRoast').addEventListener('change', onChange);
+}
 
 // ---------- SCROLL FADE ----------
 function initScrollFade() {
@@ -383,7 +395,10 @@ async function fetchDashboard() {
     if (!CONFIG.sheetUrl) {
       data = getDemoAggregates();
     } else {
-      const url = CONFIG.sheetUrl + '?action=read_aggregates&_t=' + Date.now();
+      const url = CONFIG.sheetUrl + '?action=read_aggregates'
+        + '&process=' + encodeURIComponent(state.filters.process || '')
+        + '&roast=' + encodeURIComponent(state.filters.roast || '')
+        + '&_t=' + Date.now();
       const res = await fetch(url);
       data = await res.json();
     }
@@ -399,34 +414,42 @@ function getDemoAggregates() {
   let feed = [];
   try { feed = JSON.parse(localStorage.getItem('horizonlab_demo_feed') || '[]'); } catch {}
 
+  // Apply filters
+  if (state.filters.process) feed = feed.filter(f => f.process === state.filters.process);
+  if (state.filters.roast) feed = feed.filter(f => f.roast === state.filters.roast);
+
   if (feed.length === 0) {
-    return { total_brews: 0, total_owners: 0, approval_pct: null, by_origin: {}, by_time: {}, by_method: {}, by_flavor: {} };
+    return { total_brews: 0, total_owners: 0, approval_pct: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
   }
 
   const byOrigin = {};
+  const byProcess = {};
+  const byRoast = {};
   const byTime = {};
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
   // "Positive" = top-2-box (rating 4 or 5: Significant or Dramatic).
   let positiveCount = 0;
+  let treatmentSum = 0;
+
+  const bump = (bucket, key, rating) => {
+    if (!key) return;
+    if (!bucket[key]) bucket[key] = { sum: 0, count: 0 };
+    bucket[key].sum += rating;
+    bucket[key].count++;
+  };
 
   feed.forEach(f => {
     owners.add(f.serial_prefix);
     if (f.rating >= 4) positiveCount++;
+    treatmentSum += parseFloat(f.treatment_mins) || 0;
 
-    if (!byOrigin[f.origin]) byOrigin[f.origin] = { sum: 0, count: 0 };
-    byOrigin[f.origin].sum += f.rating;
-    byOrigin[f.origin].count++;
-
-    const bucket = getTimeBucket(f.treatment_mins);
-    if (!byTime[bucket]) byTime[bucket] = { sum: 0, count: 0 };
-    byTime[bucket].sum += f.rating;
-    byTime[bucket].count++;
-
-    if (!byMethod[f.brew_method]) byMethod[f.brew_method] = { sum: 0, count: 0 };
-    byMethod[f.brew_method].sum += f.rating;
-    byMethod[f.brew_method].count++;
+    bump(byOrigin, f.origin, f.rating);
+    bump(byProcess, f.process, f.rating);
+    bump(byRoast, f.roast, f.rating);
+    bump(byMethod, f.brew_method, f.rating);
+    bump(byTime, getTimeBucket(f.treatment_mins), f.rating);
 
     const flavors = typeof f.flavors === 'string' ? f.flavors.split(', ').filter(Boolean) : (f.flavors || []);
     flavors.forEach(fl => {
@@ -438,7 +461,10 @@ function getDemoAggregates() {
     total_brews: feed.length,
     total_owners: owners.size,
     approval_pct: Math.round((positiveCount / feed.length) * 100),
+    avg_treatment_mins: treatmentSum / feed.length,
     by_origin: byOrigin,
+    by_process: byProcess,
+    by_roast: byRoast,
     by_time: byTime,
     by_method: byMethod,
     by_flavor: byFlavor,
@@ -455,80 +481,73 @@ function getTimeBucket(mins) {
 
 // ---------- RENDER DASHBOARD ----------
 function renderDashboard(data) {
+  // Hero stats reflect the filtered set so users see how the picked
+  // profile performs (when a filter is active) or the global picture
+  // (when "All" is selected on both filters).
   $('#statBrews').textContent = (data.total_brews || 0).toLocaleString();
   $('#statOwners').textContent = (data.total_owners || 0).toLocaleString();
   $('#statApproval').textContent = (data.approval_pct != null && data.total_brews > 0)
     ? data.approval_pct + '%'
     : '--';
 
-  renderBarChart('chartOrigin', data.by_origin, 'avg');
-  renderBarChart('chartTime', data.by_time, 'avg', true);
-  renderBarChart('chartMethod', data.by_method, 'avg');
-  renderCountChart('chartFlavor', data.by_flavor);
-
+  renderSummary(data);
   renderGaps(data);
 }
 
-function renderBarChart(containerId, dataObj, mode, preserveOrder) {
-  const container = document.getElementById(containerId);
-  if (!dataObj || Object.keys(dataObj).length === 0) {
-    container.innerHTML = '<div class="chart-empty">' + escapeHtml(t('chart_empty')) + '</div>';
+function renderSummary(data) {
+  const card = $('#summaryCard');
+  const total = data.total_brews || 0;
+
+  if (total === 0) {
+    card.innerHTML = '<div class="chart-empty">' + escapeHtml(t('summary_no_match')) + '</div>';
     return;
   }
 
-  let entries = Object.entries(dataObj).map(([label, val]) => ({
-    label,
-    avg: val.sum / val.count,
-    count: val.count,
-  }));
+  const avgTime = data.avg_treatment_mins
+    ? formatTreatment(data.avg_treatment_mins)
+    : '--';
+  const approval = (data.approval_pct != null) ? data.approval_pct + '%' : '--';
 
-  if (!preserveOrder) {
-    entries.sort((a, b) => b.avg - a.avg);
-  }
+  // Top 5 flavor changes by frequency, expressed as a percentage of matched brews.
+  const flavorEntries = Object.entries(data.by_flavor || {})
+    .map(([key, count]) => ({ key, count, pct: Math.round((count / total) * 100) }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
 
-  const maxAvg = 5;
-
-  container.innerHTML = entries.map(e => {
-    const pct = (e.avg / maxAvg) * 100;
-    return `
-      <div class="bar-row">
-        <span class="bar-label" title="${escapeHtml(e.label)}">${escapeHtml(e.label)}</span>
-        <div class="bar-track">
-          <div class="bar-fill" style="width: ${pct}%"></div>
-        </div>
-        <span class="bar-value">${e.avg.toFixed(1)} <span class="bar-count">(${e.count})</span></span>
-      </div>
-    `;
-  }).join('');
-}
-
-function renderCountChart(containerId, dataObj) {
-  const container = document.getElementById(containerId);
-  if (!dataObj || Object.keys(dataObj).length === 0) {
-    container.innerHTML = '<div class="chart-empty">' + escapeHtml(t('chart_empty')) + '</div>';
-    return;
-  }
-
-  const entries = Object.entries(dataObj)
-    .map(([label, count]) => ({ label, count }))
-    .sort((a, b) => b.count - a.count);
-
-  const maxCount = entries[0]?.count || 1;
-
-  container.innerHTML = entries.map(e => {
-    const pct = (e.count / maxCount) * 100;
-    const flavorKey = 'flavor_' + e.label.toLowerCase().replace(/ .*/, '');
-    const label = t(flavorKey) !== flavorKey ? t(flavorKey) : e.label;
+  const flavorRows = flavorEntries.map(f => {
+    const flavorKey = 'flavor_' + f.key.toLowerCase().replace(/ .*/, '');
+    const label = t(flavorKey) !== flavorKey ? t(flavorKey) : f.key;
     return `
       <div class="bar-row">
         <span class="bar-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
         <div class="bar-track">
-          <div class="bar-fill" style="width: ${pct}%"></div>
+          <div class="bar-fill" style="width: ${f.pct}%"></div>
         </div>
-        <span class="bar-value">${e.count}x</span>
+        <span class="bar-value">${f.pct}%</span>
       </div>
     `;
   }).join('');
+
+  card.innerHTML = `
+    <div class="summary-headline">
+      <strong>${total.toLocaleString()}</strong>
+      ${escapeHtml(t('summary_brews_label'))}
+    </div>
+    <div class="summary-stats">
+      <div class="summary-pill">
+        <span class="summary-pill-num">${escapeHtml(avgTime)}</span>
+        <span class="summary-pill-label">${escapeHtml(t('summary_avg_time'))}</span>
+      </div>
+      <div class="summary-pill">
+        <span class="summary-pill-num">${escapeHtml(approval)}</span>
+        <span class="summary-pill-label">${escapeHtml(t('summary_approval_label'))}</span>
+      </div>
+    </div>
+    ${flavorRows ? `
+      <h4 class="summary-flavors-title">${escapeHtml(t('summary_top_flavors'))}</h4>
+      <div class="summary-flavors">${flavorRows}</div>
+    ` : ''}
+  `;
 }
 
 // ---------- EXPLORE GAPS ----------

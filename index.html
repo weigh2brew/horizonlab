@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;1,400&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=5">
+  <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
 
@@ -80,45 +80,37 @@
     </div>
   </section>
 
-  <!-- ===== DASHBOARD ===== -->
+  <!-- ===== EXPLORER ===== -->
   <section id="dashboard" class="section">
-    <h2 class="section-title" data-i18n="live_title"></h2>
-    <p class="section-subtitle" data-i18n="live_subtitle"></p>
+    <h2 class="section-title" data-i18n="explorer_title"></h2>
+    <p class="section-subtitle" data-i18n="explorer_subtitle"></p>
 
-    <!-- Rating by Origin -->
-    <div class="chart-card">
-      <h3 class="chart-title" data-i18n="chart_origin_title"></h3>
-      <p class="chart-desc" data-i18n="chart_origin_desc"></p>
-      <div class="bar-chart" id="chartOrigin">
-        <div class="chart-empty" data-i18n="chart_empty"></div>
+    <div class="explorer-filters">
+      <div class="explorer-filter">
+        <label class="explorer-filter-label" for="filterProcess" data-i18n="filter_process"></label>
+        <select id="filterProcess" class="input">
+          <option value="" data-i18n="filter_all"></option>
+          <option value="Washed">Washed</option>
+          <option value="Natural">Natural</option>
+          <option value="Honey">Honey</option>
+          <option value="Anaerobic">Anaerobic</option>
+          <option value="Cofermented">Cofermented</option>
+          <option value="Unknown">Unknown</option>
+        </select>
+      </div>
+      <div class="explorer-filter">
+        <label class="explorer-filter-label" for="filterRoast" data-i18n="filter_roast"></label>
+        <select id="filterRoast" class="input">
+          <option value="" data-i18n="filter_all"></option>
+          <option value="Light" data-i18n="roast_light"></option>
+          <option value="Medium" data-i18n="roast_medium"></option>
+          <option value="Dark" data-i18n="roast_dark"></option>
+        </select>
       </div>
     </div>
 
-    <!-- Treatment Time Curve -->
-    <div class="chart-card">
-      <h3 class="chart-title" data-i18n="chart_time_title"></h3>
-      <p class="chart-desc" data-i18n="chart_time_desc"></p>
-      <div class="bar-chart" id="chartTime">
-        <div class="chart-empty" data-i18n="chart_empty"></div>
-      </div>
-    </div>
-
-    <!-- Rating by Brew Method -->
-    <div class="chart-card">
-      <h3 class="chart-title" data-i18n="chart_method_title"></h3>
-      <p class="chart-desc" data-i18n="chart_method_desc"></p>
-      <div class="bar-chart" id="chartMethod">
-        <div class="chart-empty" data-i18n="chart_empty"></div>
-      </div>
-    </div>
-
-    <!-- Flavor Shift -->
-    <div class="chart-card">
-      <h3 class="chart-title" data-i18n="chart_flavor_title"></h3>
-      <p class="chart-desc" data-i18n="chart_flavor_desc"></p>
-      <div class="bar-chart" id="chartFlavor">
-        <div class="chart-empty" data-i18n="chart_empty"></div>
-      </div>
+    <div class="summary-card chart-card" id="summaryCard">
+      <div class="chart-empty" data-i18n="chart_empty"></div>
     </div>
   </section>
 
@@ -219,7 +211,7 @@
             <option value="Natural">Natural</option>
             <option value="Honey">Honey</option>
             <option value="Anaerobic">Anaerobic</option>
-            <option value="Wet Hulled">Wet Hulled</option>
+            <option value="Cofermented">Cofermented</option>
             <option value="Unknown">Unknown</option>
           </select>
         </div>
@@ -347,7 +339,7 @@
     <p class="footer-brand" data-i18n-html="footer_brand"></p>
   </footer>
 
-  <script src="translations.js?v=5"></script>
-  <script src="app.js?v=8"></script>
+  <script src="translations.js?v=7"></script>
+  <script src="app.js?v=10"></script>
 </body>
 </html>

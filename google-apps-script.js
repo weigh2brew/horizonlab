@@ -54,7 +54,7 @@ function doGet(e) {
       case 'verify':
         return jsonResponse(handleVerify(e.parameter));
       case 'read_aggregates':
-        return jsonResponse(handleReadAggregates());
+        return jsonResponse(handleReadAggregates(e.parameter));
       case 'read_feed':
         return jsonResponse(handleReadFeed(e.parameter));
       default:
@@ -178,12 +178,18 @@ function sanitize(str, maxLen) {
 }
 
 // ---------- READ AGGREGATES ----------
-function handleReadAggregates() {
+function handleReadAggregates(params) {
+  params = params || {};
+  const filterProcess = String(params.process || '').trim();
+  const filterRoast = String(params.roast || '').trim();
+  const isFiltered = !!(filterProcess || filterRoast);
+
   const ss = openSheet();
 
-  // Check cache (stats tab)
+  // Cache only the unfiltered global view; filtered views are cheap enough
+  // to recompute and would otherwise need a cache key per filter combo.
   const statsSheet = ss.getSheetByName(SHEET_STATS);
-  if (statsSheet) {
+  if (statsSheet && !isFiltered) {
     const cached = getCachedStats(statsSheet);
     if (cached) return cached;
   }
@@ -193,65 +199,78 @@ function handleReadAggregates() {
   const data = brewSheet.getDataRange().getValues();
 
   if (data.length <= 1) {
-    return { total_brews: 0, total_owners: 0, approval_pct: null, by_origin: {}, by_time: {}, by_method: {}, by_flavor: {} };
+    return { total_brews: 0, total_owners: 0, approval_pct: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
   }
 
   const byOrigin = {};
+  const byProcess = {};
+  const byRoast = {};
   const byTime = {};
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
   // "Positive" = top-2-box (rating 4 or 5).
   let positiveCount = 0;
+  let matchedBrews = 0;
+  let treatmentSum = 0;
+
+  function bump(bucket, key, rating) {
+    if (!key) return;
+    if (!bucket[key]) bucket[key] = { sum: 0, count: 0 };
+    bucket[key].sum += rating;
+    bucket[key].count++;
+  }
 
   for (let i = 1; i < data.length; i++) {
     const row = data[i];
     const serialHash = row[1];
     const origin = row[2];
+    const process = row[3];
+    const roast = row[4];
     const brewMethod = row[5];
     const treatmentMins = parseFloat(row[6]) || 5;
     const rating = parseInt(row[7]) || 3;
     const flavors = String(row[8] || '');
 
+    if (filterProcess && process !== filterProcess) continue;
+    if (filterRoast && roast !== filterRoast) continue;
+
+    matchedBrews++;
     owners.add(serialHash);
     if (rating >= 4) positiveCount++;
+    treatmentSum += treatmentMins;
 
-    // By origin
-    if (!byOrigin[origin]) byOrigin[origin] = { sum: 0, count: 0 };
-    byOrigin[origin].sum += rating;
-    byOrigin[origin].count++;
+    bump(byOrigin, origin, rating);
+    bump(byProcess, process, rating);
+    bump(byRoast, roast, rating);
+    bump(byMethod, brewMethod, rating);
+    bump(byTime, getTimeBucket(treatmentMins), rating);
 
-    // By time bucket
-    const bucket = getTimeBucket(treatmentMins);
-    if (!byTime[bucket]) byTime[bucket] = { sum: 0, count: 0 };
-    byTime[bucket].sum += rating;
-    byTime[bucket].count++;
-
-    // By method
-    if (!byMethod[brewMethod]) byMethod[brewMethod] = { sum: 0, count: 0 };
-    byMethod[brewMethod].sum += rating;
-    byMethod[brewMethod].count++;
-
-    // By flavor
-    flavors.split(',').forEach(f => {
+    flavors.split(',').forEach(function (f) {
       f = f.trim();
       if (f) byFlavor[f] = (byFlavor[f] || 0) + 1;
     });
   }
 
-  const totalBrews = data.length - 1;
+  if (matchedBrews === 0) {
+    return { total_brews: 0, total_owners: 0, approval_pct: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
+  }
+
   const result = {
-    total_brews: totalBrews,
+    total_brews: matchedBrews,
     total_owners: owners.size,
-    approval_pct: Math.round((positiveCount / totalBrews) * 100),
+    approval_pct: Math.round((positiveCount / matchedBrews) * 100),
+    avg_treatment_mins: treatmentSum / matchedBrews,
     by_origin: byOrigin,
+    by_process: byProcess,
+    by_roast: byRoast,
     by_time: byTime,
     by_method: byMethod,
     by_flavor: byFlavor,
   };
 
-  // Cache for 60 seconds
-  if (statsSheet) setCachedStats(statsSheet, result);
+  // Cache only the unfiltered global view.
+  if (statsSheet && !isFiltered) setCachedStats(statsSheet, result);
 
   return result;
 }
