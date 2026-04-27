@@ -542,6 +542,10 @@ function renderSummary(data) {
       // Backend may return either {more, less} (new) or a bare count (legacy).
       const more = typeof val === 'object' ? (val.more || 0) : (val || 0);
       const less = typeof val === 'object' ? (val.less || 0) : 0;
+      // Drop unknown / corrupt keys (e.g. "#ERROR!"); only keep flavors with a
+      // known translation key so garbage data doesn't surface as bars.
+      const flavorKey = 'flavor_' + key.toLowerCase().replace(/ .*/, '');
+      if (t(flavorKey) === flavorKey) return null;
       return {
         key,
         more,
@@ -551,7 +555,7 @@ function renderSummary(data) {
         totalReports: more + less,
       };
     })
-    .filter(f => f.totalReports > 0)
+    .filter(f => f && f.totalReports > 0)
     .sort((a, b) => b.totalReports - a.totalReports)
     .slice(0, 5);
 
@@ -695,10 +699,12 @@ function renderFeed(entries) {
           if (f[0] === '+') { dir = 'more'; name = f.slice(1); }
           else if (f[0] === '-') { dir = 'less'; name = f.slice(1); }
           const flavorKey = 'flavor_' + name.toLowerCase().replace(/ .*/, '');
-          const flavorLabel = t(flavorKey) !== flavorKey ? t(flavorKey) : name;
+          const flavorLabel = t(flavorKey);
+          // Drop unknown / corrupt tokens (e.g. "#ERROR!" from a broken sheet cell).
+          if (flavorLabel === flavorKey) return '';
           const arrow = dir === 'more' ? '↑' : '↓';
           return '<span class="feed-tag feed-tag-' + dir + '">' + escapeHtml(flavorLabel) + ' ' + arrow + '</span>';
-        }).join('')}</div>` : ''}
+        }).filter(Boolean).join('')}</div>` : ''}
         ${e.note ? `<p class="feed-note">"${escapeHtml(e.note)}"</p>` : ''}
         <div class="feed-time">${escapeHtml(timeAgo)}</div>
       </div>
