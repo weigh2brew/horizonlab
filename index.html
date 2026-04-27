@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;1,400&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=6">
+  <link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 
@@ -294,18 +294,32 @@
           </div>
         </div>
 
-        <!-- Flavor Tags -->
+        <!-- Flavor changes — direction captured per attribute -->
         <div class="field">
-          <label class="field-label"><span data-i18n="field_flavors"></span> <span class="field-hint" data-i18n="field_flavors_hint"></span></label>
-          <div class="flavor-chips">
-            <label class="chip"><input type="checkbox" name="flavors" value="Sweetness"><span data-i18n="flavor_sweetness"></span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Acidity"><span data-i18n="flavor_acidity"></span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Body"><span data-i18n="flavor_body"></span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Smoothness"><span data-i18n="flavor_smoothness"></span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Clarity"><span data-i18n="flavor_clarity"></span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Bitterness"><span data-i18n="flavor_bitterness"></span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Aroma"><span data-i18n="flavor_aroma"></span></label>
-            <label class="chip"><input type="checkbox" name="flavors" value="Aftertaste"><span data-i18n="flavor_aftertaste"></span></label>
+          <label class="field-label"><span data-i18n="field_flavors_more"></span> <span class="field-hint" data-i18n="field_flavors_hint"></span></label>
+          <div class="flavor-chips flavor-chips-more">
+            <label class="chip"><input type="checkbox" data-flavor="Sweetness" data-dir="+"><span data-i18n="flavor_sweetness"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Acidity" data-dir="+"><span data-i18n="flavor_acidity"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Body" data-dir="+"><span data-i18n="flavor_body"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Smoothness" data-dir="+"><span data-i18n="flavor_smoothness"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Clarity" data-dir="+"><span data-i18n="flavor_clarity"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Bitterness" data-dir="+"><span data-i18n="flavor_bitterness"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Aroma" data-dir="+"><span data-i18n="flavor_aroma"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Aftertaste" data-dir="+"><span data-i18n="flavor_aftertaste"></span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="field-label"><span data-i18n="field_flavors_less"></span> <span class="field-hint" data-i18n="field_flavors_hint"></span></label>
+          <div class="flavor-chips flavor-chips-less">
+            <label class="chip"><input type="checkbox" data-flavor="Sweetness" data-dir="-"><span data-i18n="flavor_sweetness"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Acidity" data-dir="-"><span data-i18n="flavor_acidity"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Body" data-dir="-"><span data-i18n="flavor_body"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Smoothness" data-dir="-"><span data-i18n="flavor_smoothness"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Clarity" data-dir="-"><span data-i18n="flavor_clarity"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Bitterness" data-dir="-"><span data-i18n="flavor_bitterness"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Aroma" data-dir="-"><span data-i18n="flavor_aroma"></span></label>
+            <label class="chip"><input type="checkbox" data-flavor="Aftertaste" data-dir="-"><span data-i18n="flavor_aftertaste"></span></label>
           </div>
         </div>
 
@@ -339,7 +353,7 @@
     <p class="footer-brand" data-i18n-html="footer_brand"></p>
   </footer>
 
-  <script src="translations.js?v=7"></script>
-  <script src="app.js?v=10"></script>
+  <script src="translations.js?v=8"></script>
+  <script src="app.js?v=11"></script>
 </body>
 </html>

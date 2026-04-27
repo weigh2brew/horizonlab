@@ -236,6 +236,19 @@ function initForm() {
   $('#brewNote').addEventListener('input', () => {
     $('#charCount').textContent = $('#brewNote').value.length;
   });
+
+  // Flavor chips: a flavor can be marked got-stronger OR got-weaker, never both.
+  // Picking the opposite direction auto-clears the first one.
+  $$('input[data-flavor]').forEach(input => {
+    input.addEventListener('change', () => {
+      if (!input.checked) return;
+      const flavor = input.dataset.flavor;
+      const dir = input.dataset.dir;
+      $$('input[data-flavor="' + flavor + '"]').forEach(other => {
+        if (other !== input && other.dataset.dir !== dir) other.checked = false;
+      });
+    });
+  });
 }
 
 function formatTreatment(mins) {
@@ -280,6 +293,12 @@ async function handleSubmit(e) {
   const form = $('#brewForm');
   const btn = $('#btnSubmit');
 
+  // Flavor changes: each ticked chip becomes "+Flavor" (got stronger) or
+  // "-Flavor" (got weaker). The mutual-exclusion handler in initForm()
+  // ensures a flavor can't be both at submission time.
+  const flavorChanges = Array.from(form.querySelectorAll('input[data-flavor]:checked'))
+    .map(c => c.dataset.dir + c.dataset.flavor);
+
   const data = {
     origin: $('#coffeeOrigin').value,
     process: $('#processMethod').value,
@@ -287,7 +306,7 @@ async function handleSubmit(e) {
     brew_method: $('#brewMethod').value,
     treatment_mins: parseFloat($('#treatmentTimeManual').value) || parseFloat($('#treatmentTime').value),
     rating: parseInt(form.querySelector('input[name="rating"]:checked')?.value, 10),
-    flavors: Array.from(form.querySelectorAll('input[name="flavors"]:checked')).map(c => c.value),
+    flavors: flavorChanges,
     note: $('#brewNote').value.trim(),
   };
 
@@ -451,9 +470,16 @@ function getDemoAggregates() {
     bump(byMethod, f.brew_method, f.rating);
     bump(byTime, getTimeBucket(f.treatment_mins), f.rating);
 
-    const flavors = typeof f.flavors === 'string' ? f.flavors.split(', ').filter(Boolean) : (f.flavors || []);
+    const flavors = typeof f.flavors === 'string'
+      ? f.flavors.split(',').map(s => s.trim()).filter(Boolean)
+      : (f.flavors || []);
     flavors.forEach(fl => {
-      byFlavor[fl] = (byFlavor[fl] || 0) + 1;
+      // "+Acidity" / "-Acidity" / bare "Acidity" (legacy: treat as "more")
+      let dir = 'more', name = fl;
+      if (fl[0] === '+') { dir = 'more'; name = fl.slice(1); }
+      else if (fl[0] === '-') { dir = 'less'; name = fl.slice(1); }
+      if (!byFlavor[name]) byFlavor[name] = { more: 0, less: 0 };
+      byFlavor[name][dir]++;
     });
   });
 
@@ -508,22 +534,46 @@ function renderSummary(data) {
     : '--';
   const approval = (data.approval_pct != null) ? data.approval_pct + '%' : '--';
 
-  // Top 5 flavor changes by frequency, expressed as a percentage of matched brews.
+  // Top 5 flavor changes by total report volume (more + less). Each entry
+  // shows a divergent bar — % of matched brews that said "less" on the left,
+  // % that said "more" on the right.
   const flavorEntries = Object.entries(data.by_flavor || {})
-    .map(([key, count]) => ({ key, count, pct: Math.round((count / total) * 100) }))
-    .sort((a, b) => b.count - a.count)
+    .map(([key, val]) => {
+      // Backend may return either {more, less} (new) or a bare count (legacy).
+      const more = typeof val === 'object' ? (val.more || 0) : (val || 0);
+      const less = typeof val === 'object' ? (val.less || 0) : 0;
+      return {
+        key,
+        more,
+        less,
+        morePct: Math.round((more / total) * 100),
+        lessPct: Math.round((less / total) * 100),
+        totalReports: more + less,
+      };
+    })
+    .filter(f => f.totalReports > 0)
+    .sort((a, b) => b.totalReports - a.totalReports)
     .slice(0, 5);
 
   const flavorRows = flavorEntries.map(f => {
     const flavorKey = 'flavor_' + f.key.toLowerCase().replace(/ .*/, '');
     const label = t(flavorKey) !== flavorKey ? t(flavorKey) : f.key;
     return `
-      <div class="bar-row">
-        <span class="bar-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
-        <div class="bar-track">
-          <div class="bar-fill" style="width: ${f.pct}%"></div>
+      <div class="divergent-row">
+        <span class="divergent-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
+        <div class="divergent-track">
+          <div class="divergent-half divergent-half-less">
+            <div class="divergent-fill" style="width: ${f.lessPct}%"></div>
+          </div>
+          <div class="divergent-half divergent-half-more">
+            <div class="divergent-fill" style="width: ${f.morePct}%"></div>
+          </div>
         </div>
-        <span class="bar-value">${f.pct}%</span>
+        <span class="divergent-stats">
+          <span class="divergent-less-stat">${f.lessPct}%</span>
+          <span class="divergent-sep">/</span>
+          <span class="divergent-more-stat">${f.morePct}%</span>
+        </span>
       </div>
     `;
   }).join('');
@@ -639,10 +689,15 @@ function renderFeed(entries) {
           <span class="feed-tag">${escapeHtml(e.brew_method || '')}</span>
           <span class="feed-tag">${escapeHtml(formatTreatment(e.treatment_mins))}</span>
         </div>
-        ${flavors ? `<div class="feed-meta">${flavors.split(', ').filter(Boolean).map(f => {
-          const flavorKey = 'flavor_' + f.toLowerCase().replace(/ .*/, '');
-          const flavorLabel = t(flavorKey) !== flavorKey ? t(flavorKey) : f;
-          return '<span class="feed-tag">' + escapeHtml(flavorLabel) + '</span>';
+        ${flavors ? `<div class="feed-meta">${flavors.split(',').map(s => s.trim()).filter(Boolean).map(f => {
+          // "+Acidity" / "-Acidity" / bare "Acidity" (legacy)
+          let dir = 'more', name = f;
+          if (f[0] === '+') { dir = 'more'; name = f.slice(1); }
+          else if (f[0] === '-') { dir = 'less'; name = f.slice(1); }
+          const flavorKey = 'flavor_' + name.toLowerCase().replace(/ .*/, '');
+          const flavorLabel = t(flavorKey) !== flavorKey ? t(flavorKey) : name;
+          const arrow = dir === 'more' ? '↑' : '↓';
+          return '<span class="feed-tag feed-tag-' + dir + '">' + escapeHtml(flavorLabel) + ' ' + arrow + '</span>';
         }).join('')}</div>` : ''}
         ${e.note ? `<p class="feed-note">"${escapeHtml(e.note)}"</p>` : ''}
         <div class="feed-time">${escapeHtml(timeAgo)}</div>

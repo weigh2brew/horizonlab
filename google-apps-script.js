@@ -246,9 +246,17 @@ function handleReadAggregates(params) {
     bump(byMethod, brewMethod, rating);
     bump(byTime, getTimeBucket(treatmentMins), rating);
 
+    // "+Flavor" = got stronger, "-Flavor" = got weaker. Bare flavor names
+    // (legacy, pre-divergent-bar entries) are counted as "more".
     flavors.split(',').forEach(function (f) {
-      f = f.trim();
-      if (f) byFlavor[f] = (byFlavor[f] || 0) + 1;
+      f = String(f).trim();
+      if (!f) return;
+      var dir = 'more', name = f;
+      if (f.charAt(0) === '+') { dir = 'more'; name = f.slice(1); }
+      else if (f.charAt(0) === '-') { dir = 'less'; name = f.slice(1); }
+      if (!name) return;
+      if (!byFlavor[name]) byFlavor[name] = { more: 0, less: 0 };
+      byFlavor[name][dir]++;
     });
   }
 

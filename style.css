@@ -429,6 +429,81 @@ body {
 
 .summary-flavors .bar-fill { background: var(--green); }
 
+/* Divergent flavor bars (less ← center → more) */
+.divergent-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 80px;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.divergent-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.divergent-track {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 22px;
+  background: rgba(23, 23, 23, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.divergent-track::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(23, 23, 23, 0.18);
+  z-index: 1;
+}
+
+.divergent-half {
+  position: relative;
+  height: 100%;
+}
+
+.divergent-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--black);
+  transition: width 0.7s cubic-bezier(0.3, 1, 0.3, 1);
+}
+
+.divergent-half-less .divergent-fill {
+  right: 0;
+  background: var(--danger);
+}
+
+.divergent-half-more .divergent-fill {
+  left: 0;
+  background: var(--green);
+}
+
+.divergent-stats {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-start;
+  font-size: 0.6875rem;
+  font-weight: 500;
+}
+
+.divergent-less-stat { color: var(--danger); }
+.divergent-more-stat { color: var(--green); }
+.divergent-sep { color: var(--text-muted); }
+
 /* ===== COMMUNITY VOTE ===== */
 .vote-card { padding: 28px 24px; }
 
@@ -774,6 +849,16 @@ select.input {
 
 .chip:hover span { border-color: var(--text-muted); }
 
+/* Direction-aware chip colours */
+.flavor-chips-more .chip input:checked + span {
+  background: var(--green);
+  border-color: var(--green);
+}
+.flavor-chips-less .chip input:checked + span {
+  background: var(--danger);
+  border-color: var(--danger);
+}
+
 .btn-submit {
   width: 100%;
   padding: clamp(1rem, 1.2vw, 1.25rem);
@@ -848,6 +933,9 @@ select.input {
   border-radius: var(--radius-pill);
   color: var(--text-secondary);
 }
+
+.feed-tag-more { color: var(--green); }
+.feed-tag-less { color: var(--danger); }
 
 .feed-note {
   font-size: 0.8125rem;
