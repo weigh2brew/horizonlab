@@ -21,7 +21,6 @@ const state = {
   serial: null,
   aggregates: null,
   feed: [],
-  feedOffset: 0,
   comments: null,
   votes: null,
   filters: { process: '', roast: '' },
@@ -653,7 +652,7 @@ async function fetchFeed() {
     if (!CONFIG.sheetUrl) {
       try { entries = JSON.parse(localStorage.getItem('horizonlab_demo_feed') || '[]'); } catch { entries = []; }
     } else {
-      const url = CONFIG.sheetUrl + '?action=read_feed&limit=' + CONFIG.feedPageSize + '&offset=' + state.feedOffset + '&_t=' + Date.now();
+      const url = CONFIG.sheetUrl + '?action=read_feed&limit=' + CONFIG.feedPageSize + '&_t=' + Date.now();
       const res = await fetch(url);
       const json = await res.json();
       entries = json.entries || [];
@@ -671,7 +670,6 @@ function renderFeed(entries) {
 
   if (!entries || entries.length === 0) {
     list.innerHTML = '<div class="chart-empty">' + escapeHtml(t('feed_empty')) + '</div>';
-    $('#btnLoadMore').hidden = true;
     return;
   }
 
@@ -710,8 +708,6 @@ function renderFeed(entries) {
       </div>
     `;
   }).join('');
-
-  $('#btnLoadMore').hidden = entries.length < CONFIG.feedPageSize;
 }
 
 function formatTimeAgo(timestamp) {

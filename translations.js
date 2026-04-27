@@ -49,7 +49,6 @@ const TRANSLATIONS = {
     feed_title: 'Community Feed',
     feed_subtitle: 'Recent experiments from Horizon owners around the world.',
     feed_empty: 'No brews logged yet. Be the first!',
-    feed_load_more: 'Load More',
 
     comments_title: 'What People Are Saying',
     comments_subtitle: "Comments we've received from Horizon owners and testers.",
@@ -166,7 +165,6 @@ const TRANSLATIONS = {
     feed_title: '社群動態',
     feed_subtitle: '來自全球 Horizon 持有者的最新實驗。',
     feed_empty: '還沒有紀錄，搶先分享吧！',
-    feed_load_more: '載入更多',
 
     comments_title: '大家怎麼說',
     comments_subtitle: '來自 Horizon 持有者與測試者的回饋。',
@@ -283,7 +281,6 @@ const TRANSLATIONS = {
     feed_title: '社群动态',
     feed_subtitle: '来自全球 Horizon 持有者的最新实验。',
     feed_empty: '还没有记录，来抢先分享吧！',
-    feed_load_more: '加载更多',
 
     comments_title: '大家怎么说',
     comments_subtitle: '来自 Horizon 持有者与测试者的反馈。',
@@ -400,7 +397,6 @@ const TRANSLATIONS = {
     feed_title: 'Fil communautaire',
     feed_subtitle: "Dernières expériences de propriétaires Horizon du monde entier.",
     feed_empty: 'Aucune dégustation pour le moment. Soyez le premier !',
-    feed_load_more: 'Charger plus',
 
     comments_title: 'Ce que disent les gens',
     comments_subtitle: 'Commentaires reçus de propriétaires et testeurs Horizon.',
@@ -517,7 +513,6 @@ const TRANSLATIONS = {
     feed_title: 'Feed comunitario',
     feed_subtitle: 'Experimentos recientes de propietarios Horizon de todo el mundo.',
     feed_empty: 'Aún sin catas. ¡Sé el primero!',
-    feed_load_more: 'Cargar más',
 
     comments_title: 'Lo que dice la gente',
     comments_subtitle: 'Comentarios recibidos de propietarios y probadores de Horizon.',
@@ -634,7 +629,6 @@ const TRANSLATIONS = {
     feed_title: 'Community-Feed',
     feed_subtitle: 'Aktuelle Experimente von Horizon-Besitzern weltweit.',
     feed_empty: 'Noch keine Verkostungen. Mach den Anfang!',
-    feed_load_more: 'Mehr laden',
 
     comments_title: 'Was andere sagen',
     comments_subtitle: 'Kommentare von Horizon-Besitzern und Testern.',
@@ -751,7 +745,6 @@ const TRANSLATIONS = {
     feed_title: 'コミュニティフィード',
     feed_subtitle: '世界中の Horizon オーナーの最新実験。',
     feed_empty: 'まだ記録がありません。最初の投稿者になろう！',
-    feed_load_more: 'もっと見る',
 
     comments_title: 'みんなの声',
     comments_subtitle: 'Horizon オーナーとテスターから届いたコメント。',
@@ -868,7 +861,6 @@ const TRANSLATIONS = {
     feed_title: '커뮤니티 피드',
     feed_subtitle: '전 세계 Horizon 사용자의 최신 실험.',
     feed_empty: '아직 기록이 없어요. 먼저 공유해 보세요!',
-    feed_load_more: '더 보기',
 
     comments_title: '사람들의 이야기',
     comments_subtitle: 'Horizon 사용자와 테스터에게서 받은 댓글입니다.',
