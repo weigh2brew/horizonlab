@@ -147,7 +147,7 @@ function handleSubmitBrew(payload) {
   const roast = sanitize(payload.roast, 10);
   const brewMethod = sanitize(payload.brew_method, 20);
   const treatmentMins = Math.max(0.25, Math.min(480, parseFloat(payload.treatment_mins) || 5));
-  const rating = Math.max(1, Math.min(5, parseInt(payload.rating) || 3));
+  const rating = Math.max(1, Math.min(3, parseInt(payload.rating) || 2));
   const flavors = sanitize(payload.flavors, 200);
   const note = sanitize(payload.note, 280);
 
@@ -209,10 +209,10 @@ function handleReadAggregates(params) {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  // Impact score: avg rating on the bipolar 1-5 scale mapped onto -100..+100.
-  // (1 = "Significantly worse" = -100, 3 = "No difference" = 0,
-  //  5 = "Significantly better" = +100.)
+  // Impact score: avg rating on the 3-stop preference scale mapped to -100..+100.
+  // (1 = Untreated → -100, 2 = No preference → 0, 3 = Horizon → +100.)
   let ratingSum = 0;
+  let ratingCount = 0;
   let matchedBrews = 0;
   let treatmentSum = 0;
 
@@ -239,7 +239,12 @@ function handleReadAggregates(params) {
 
     matchedBrews++;
     owners.add(serialHash);
-    ratingSum += rating;
+    // Only count ratings on the new 3-stop scale; legacy 4/5 values are
+    // ignored so old test data doesn't skew the score.
+    if (rating >= 1 && rating <= 3) {
+      ratingSum += rating;
+      ratingCount++;
+    }
     treatmentSum += treatmentMins;
 
     bump(byOrigin, origin, rating);
@@ -266,11 +271,13 @@ function handleReadAggregates(params) {
     return { total_brews: 0, total_owners: 0, impact_score: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
   }
 
-  const avgRating = ratingSum / matchedBrews;
+  const impactScore = ratingCount > 0
+    ? Math.round((ratingSum / ratingCount - 2) * 100)
+    : null;
   const result = {
     total_brews: matchedBrews,
     total_owners: owners.size,
-    impact_score: Math.round(((avgRating - 3) / 2) * 100),
+    impact_score: impactScore,
     avg_treatment_mins: treatmentSum / matchedBrews,
     by_origin: byOrigin,
     by_process: byProcess,

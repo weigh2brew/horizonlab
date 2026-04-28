@@ -457,9 +457,10 @@ function getDemoAggregates() {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  // Impact score: avg rating on the bipolar 1-5 scale mapped onto -100..+100.
-  // (3 = "No difference" → 0; 1 = "Significantly worse" → -100; 5 = "Significantly better" → +100.)
+  // Impact score: avg rating on the 3-stop preference scale mapped to -100..+100.
+  // (1 = Untreated → -100; 2 = No preference → 0; 3 = Horizon → +100.)
   let ratingSum = 0;
+  let ratingCount = 0;
   let treatmentSum = 0;
 
   const bump = (bucket, key, rating) => {
@@ -471,7 +472,13 @@ function getDemoAggregates() {
 
   feed.forEach(f => {
     owners.add(f.serial_prefix);
-    ratingSum += parseFloat(f.rating) || 0;
+    // Only count ratings on the new 3-stop scale; legacy 4/5 values are ignored
+    // so they don't pollute the score.
+    const r = parseFloat(f.rating);
+    if (r >= 1 && r <= 3) {
+      ratingSum += r;
+      ratingCount++;
+    }
     treatmentSum += parseFloat(f.treatment_mins) || 0;
 
     bump(byOrigin, f.origin, f.rating);
@@ -493,11 +500,13 @@ function getDemoAggregates() {
     });
   });
 
-  const avgRating = ratingSum / feed.length;
+  const impactScore = ratingCount > 0
+    ? Math.round((ratingSum / ratingCount - 2) * 100)
+    : null;
   return {
     total_brews: feed.length,
     total_owners: owners.size,
-    impact_score: Math.round(((avgRating - 3) / 2) * 100),
+    impact_score: impactScore,
     avg_treatment_mins: treatmentSum / feed.length,
     by_origin: byOrigin,
     by_process: byProcess,
