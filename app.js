@@ -253,13 +253,6 @@ function initForm() {
   });
 }
 
-function formatImpactScore(n) {
-  // Always show the sign for non-zero values so the polarity is clear at a glance.
-  if (n > 0) return '+' + n;
-  if (n < 0) return String(n);
-  return '0';
-}
-
 function formatTreatment(mins) {
   const totalSeconds = Math.round(parseFloat(mins) * 60);
   if (totalSeconds < 60) return totalSeconds + 's';
@@ -457,9 +450,8 @@ function getDemoAggregates() {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  // Impact score: avg rating on the 3-stop preference scale mapped to -100..+100.
-  // (1 = Untreated → -100; 2 = No preference → 0; 3 = Horizon → +100.)
-  let ratingSum = 0;
+  // Impact score: percentage of cups where the taster picked "Horizon" (rating = 3).
+  let horizonPreferred = 0;
   let ratingCount = 0;
   let treatmentSum = 0;
 
@@ -472,12 +464,11 @@ function getDemoAggregates() {
 
   feed.forEach(f => {
     owners.add(f.serial_prefix);
-    // Only count ratings on the new 3-stop scale; legacy 4/5 values are ignored
-    // so they don't pollute the score.
+    // Only count ratings on the 3-stop scale; legacy 4/5 values are ignored.
     const r = parseFloat(f.rating);
     if (r >= 1 && r <= 3) {
-      ratingSum += r;
       ratingCount++;
+      if (r === 3) horizonPreferred++;
     }
     treatmentSum += parseFloat(f.treatment_mins) || 0;
 
@@ -501,7 +492,7 @@ function getDemoAggregates() {
   });
 
   const impactScore = ratingCount > 0
-    ? Math.round((ratingSum / ratingCount - 2) * 100)
+    ? Math.round((horizonPreferred / ratingCount) * 100)
     : null;
   return {
     total_brews: feed.length,
@@ -533,7 +524,7 @@ function renderDashboard(data) {
   $('#statBrews').textContent = (data.total_brews || 0).toLocaleString();
   $('#statOwners').textContent = (data.total_owners || 0).toLocaleString();
   $('#statImpact').textContent = (data.impact_score != null && data.total_brews > 0)
-    ? formatImpactScore(data.impact_score)
+    ? data.impact_score + '%'
     : '--';
 
   renderSummary(data);
@@ -552,7 +543,7 @@ function renderSummary(data) {
   const avgTime = data.avg_treatment_mins
     ? formatTreatment(data.avg_treatment_mins)
     : '--';
-  const impact = (data.impact_score != null) ? formatImpactScore(data.impact_score) : '--';
+  const impact = (data.impact_score != null) ? data.impact_score + '%' : '--';
 
   // Top 5 flavor changes by total report volume (more + less). Each entry
   // shows a divergent bar — % of matched brews that said "less" on the left,

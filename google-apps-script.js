@@ -209,9 +209,8 @@ function handleReadAggregates(params) {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  // Impact score: avg rating on the 3-stop preference scale mapped to -100..+100.
-  // (1 = Untreated → -100, 2 = No preference → 0, 3 = Horizon → +100.)
-  let ratingSum = 0;
+  // Impact score: percentage of cups where the taster picked "Horizon" (rating = 3).
+  let horizonPreferred = 0;
   let ratingCount = 0;
   let matchedBrews = 0;
   let treatmentSum = 0;
@@ -242,8 +241,8 @@ function handleReadAggregates(params) {
     // Only count ratings on the new 3-stop scale; legacy 4/5 values are
     // ignored so old test data doesn't skew the score.
     if (rating >= 1 && rating <= 3) {
-      ratingSum += rating;
       ratingCount++;
+      if (rating === 3) horizonPreferred++;
     }
     treatmentSum += treatmentMins;
 
@@ -272,7 +271,7 @@ function handleReadAggregates(params) {
   }
 
   const impactScore = ratingCount > 0
-    ? Math.round((ratingSum / ratingCount - 2) * 100)
+    ? Math.round((horizonPreferred / ratingCount) * 100)
     : null;
   const result = {
     total_brews: matchedBrews,
