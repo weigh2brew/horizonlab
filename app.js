@@ -253,6 +253,13 @@ function initForm() {
   });
 }
 
+function formatImpactScore(n) {
+  // Always show the sign for non-zero values so the polarity is clear at a glance.
+  if (n > 0) return '+' + n;
+  if (n < 0) return String(n);
+  return '0';
+}
+
 function formatTreatment(mins) {
   const totalSeconds = Math.round(parseFloat(mins) * 60);
   if (totalSeconds < 60) return totalSeconds + 's';
@@ -450,7 +457,8 @@ function getDemoAggregates() {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  // Impact score: avg rating mapped from 1-5 onto 0-100.
+  // Impact score: avg rating on the bipolar 1-5 scale mapped onto -100..+100.
+  // (3 = "No difference" → 0; 1 = "Significantly worse" → -100; 5 = "Significantly better" → +100.)
   let ratingSum = 0;
   let treatmentSum = 0;
 
@@ -489,7 +497,7 @@ function getDemoAggregates() {
   return {
     total_brews: feed.length,
     total_owners: owners.size,
-    impact_score: Math.round(((avgRating - 1) / 4) * 100),
+    impact_score: Math.round(((avgRating - 3) / 2) * 100),
     avg_treatment_mins: treatmentSum / feed.length,
     by_origin: byOrigin,
     by_process: byProcess,
@@ -516,7 +524,7 @@ function renderDashboard(data) {
   $('#statBrews').textContent = (data.total_brews || 0).toLocaleString();
   $('#statOwners').textContent = (data.total_owners || 0).toLocaleString();
   $('#statImpact').textContent = (data.impact_score != null && data.total_brews > 0)
-    ? data.impact_score
+    ? formatImpactScore(data.impact_score)
     : '--';
 
   renderSummary(data);
@@ -535,7 +543,7 @@ function renderSummary(data) {
   const avgTime = data.avg_treatment_mins
     ? formatTreatment(data.avg_treatment_mins)
     : '--';
-  const impact = (data.impact_score != null) ? String(data.impact_score) : '--';
+  const impact = (data.impact_score != null) ? formatImpactScore(data.impact_score) : '--';
 
   // Top 5 flavor changes by total report volume (more + less). Each entry
   // shows a divergent bar — % of matched brews that said "less" on the left,

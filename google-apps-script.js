@@ -209,8 +209,9 @@ function handleReadAggregates(params) {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  // Impact score: average rating mapped from the 1-5 scale onto 0-100.
-  // (rating 1 = "No difference" = 0, rating 5 = "Dramatic" = 100.)
+  // Impact score: avg rating on the bipolar 1-5 scale mapped onto -100..+100.
+  // (1 = "Significantly worse" = -100, 3 = "No difference" = 0,
+  //  5 = "Significantly better" = +100.)
   let ratingSum = 0;
   let matchedBrews = 0;
   let treatmentSum = 0;
@@ -269,7 +270,7 @@ function handleReadAggregates(params) {
   const result = {
     total_brews: matchedBrews,
     total_owners: owners.size,
-    impact_score: Math.round(((avgRating - 1) / 4) * 100),
+    impact_score: Math.round(((avgRating - 3) / 2) * 100),
     avg_treatment_mins: treatmentSum / matchedBrews,
     by_origin: byOrigin,
     by_process: byProcess,
