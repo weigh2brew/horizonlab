@@ -199,7 +199,7 @@ function handleReadAggregates(params) {
   const data = brewSheet.getDataRange().getValues();
 
   if (data.length <= 1) {
-    return { total_brews: 0, total_owners: 0, approval_pct: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
+    return { total_brews: 0, total_owners: 0, impact_score: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
   }
 
   const byOrigin = {};
@@ -209,8 +209,9 @@ function handleReadAggregates(params) {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  // "Positive" = top-2-box (rating 4 or 5).
-  let positiveCount = 0;
+  // Impact score: average rating mapped from the 1-5 scale onto 0-100.
+  // (rating 1 = "No difference" = 0, rating 5 = "Dramatic" = 100.)
+  let ratingSum = 0;
   let matchedBrews = 0;
   let treatmentSum = 0;
 
@@ -237,7 +238,7 @@ function handleReadAggregates(params) {
 
     matchedBrews++;
     owners.add(serialHash);
-    if (rating >= 4) positiveCount++;
+    ratingSum += rating;
     treatmentSum += treatmentMins;
 
     bump(byOrigin, origin, rating);
@@ -261,13 +262,14 @@ function handleReadAggregates(params) {
   }
 
   if (matchedBrews === 0) {
-    return { total_brews: 0, total_owners: 0, approval_pct: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
+    return { total_brews: 0, total_owners: 0, impact_score: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
   }
 
+  const avgRating = ratingSum / matchedBrews;
   const result = {
     total_brews: matchedBrews,
     total_owners: owners.size,
-    approval_pct: Math.round((positiveCount / matchedBrews) * 100),
+    impact_score: Math.round(((avgRating - 1) / 4) * 100),
     avg_treatment_mins: treatmentSum / matchedBrews,
     by_origin: byOrigin,
     by_process: byProcess,

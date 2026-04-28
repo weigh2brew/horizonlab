@@ -440,7 +440,7 @@ function getDemoAggregates() {
   if (state.filters.roast) feed = feed.filter(f => f.roast === state.filters.roast);
 
   if (feed.length === 0) {
-    return { total_brews: 0, total_owners: 0, approval_pct: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
+    return { total_brews: 0, total_owners: 0, impact_score: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
   }
 
   const byOrigin = {};
@@ -450,8 +450,8 @@ function getDemoAggregates() {
   const byMethod = {};
   const byFlavor = {};
   const owners = new Set();
-  // "Positive" = top-2-box (rating 4 or 5: Significant or Dramatic).
-  let positiveCount = 0;
+  // Impact score: avg rating mapped from 1-5 onto 0-100.
+  let ratingSum = 0;
   let treatmentSum = 0;
 
   const bump = (bucket, key, rating) => {
@@ -463,7 +463,7 @@ function getDemoAggregates() {
 
   feed.forEach(f => {
     owners.add(f.serial_prefix);
-    if (f.rating >= 4) positiveCount++;
+    ratingSum += parseFloat(f.rating) || 0;
     treatmentSum += parseFloat(f.treatment_mins) || 0;
 
     bump(byOrigin, f.origin, f.rating);
@@ -485,10 +485,11 @@ function getDemoAggregates() {
     });
   });
 
+  const avgRating = ratingSum / feed.length;
   return {
     total_brews: feed.length,
     total_owners: owners.size,
-    approval_pct: Math.round((positiveCount / feed.length) * 100),
+    impact_score: Math.round(((avgRating - 1) / 4) * 100),
     avg_treatment_mins: treatmentSum / feed.length,
     by_origin: byOrigin,
     by_process: byProcess,
@@ -514,8 +515,8 @@ function renderDashboard(data) {
   // (when "All" is selected on both filters).
   $('#statBrews').textContent = (data.total_brews || 0).toLocaleString();
   $('#statOwners').textContent = (data.total_owners || 0).toLocaleString();
-  $('#statApproval').textContent = (data.approval_pct != null && data.total_brews > 0)
-    ? data.approval_pct + '%'
+  $('#statImpact').textContent = (data.impact_score != null && data.total_brews > 0)
+    ? data.impact_score
     : '--';
 
   renderSummary(data);
@@ -534,7 +535,7 @@ function renderSummary(data) {
   const avgTime = data.avg_treatment_mins
     ? formatTreatment(data.avg_treatment_mins)
     : '--';
-  const approval = (data.approval_pct != null) ? data.approval_pct + '%' : '--';
+  const impact = (data.impact_score != null) ? String(data.impact_score) : '--';
 
   // Top 5 flavor changes by total report volume (more + less). Each entry
   // shows a divergent bar — % of matched brews that said "less" on the left,
@@ -595,8 +596,8 @@ function renderSummary(data) {
         <span class="summary-pill-label">${escapeHtml(t('summary_avg_time'))}</span>
       </div>
       <div class="summary-pill">
-        <span class="summary-pill-num">${escapeHtml(approval)}</span>
-        <span class="summary-pill-label">${escapeHtml(t('summary_approval_label'))}</span>
+        <span class="summary-pill-num">${escapeHtml(impact)}</span>
+        <span class="summary-pill-label">${escapeHtml(t('summary_impact_label'))}</span>
       </div>
     </div>
     ${flavorRows ? `
