@@ -17,7 +17,7 @@ const TRANSLATIONS = {
     vote_subtitle: 'Live results from Event Horizon tastings worldwide.',
     vote_question: 'Would Horizon make your coffee better?',
     vote_yes: 'Better with Horizon',
-    vote_no: "Can't tell the difference",
+    vote_no: 'Better without Horizon',
     votes_suffix: 'votes',
 
     live_title: 'Live Results',
