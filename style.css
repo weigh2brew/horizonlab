@@ -179,6 +179,28 @@ body {
   padding: clamp(1.125rem, 1.2vw, 1.375rem) clamp(1.625rem, 1.473vw, 1.875rem);
 }
 
+.hero-paper {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: var(--black);
+  color: var(--white);
+  border-radius: var(--radius-pill);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all var(--ease-fast);
+}
+.hero-paper::after {
+  content: '\2192';
+  transition: transform var(--ease-fast);
+}
+.hero-paper:hover { background: #333; }
+.hero-paper:hover::after { transform: translateX(3px); }
+
 /* ===== BUTTONS ===== */
 .btn {
   display: inline-flex;

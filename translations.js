@@ -12,6 +12,7 @@ const TRANSLATIONS = {
     stat_owners: 'Contributors',
     stat_impact: 'Impact Score',
     time_manual_label: 'Or longer:',
+    hero_paper_link: 'Read the White Paper',
 
     vote_title: 'In-person Horizon Tasting Vote',
     vote_subtitle: 'Live results from Event Horizon tastings worldwide.',
@@ -126,6 +127,7 @@ const TRANSLATIONS = {
     stat_owners: '貢獻者',
     stat_impact: '影響力指數',
     time_manual_label: '或更長：',
+    hero_paper_link: '閱讀白皮書',
 
     vote_title: '現場 Horizon 品飲票選',
     vote_subtitle: '來自全球 Event Horizon 品飲會的即時結果。',
@@ -240,6 +242,7 @@ const TRANSLATIONS = {
     stat_owners: '贡献者',
     stat_impact: '影响力指数',
     time_manual_label: '或更长：',
+    hero_paper_link: '阅读白皮书',
 
     vote_title: '现场 Horizon 品鉴投票',
     vote_subtitle: '来自全球 Event Horizon 品鉴会的实时结果。',
@@ -354,6 +357,7 @@ const TRANSLATIONS = {
     stat_owners: 'Contributeurs',
     stat_impact: 'Score d’impact',
     time_manual_label: 'Ou plus long :',
+    hero_paper_link: 'Lire le livre blanc',
 
     vote_title: 'Vote des dégustations Horizon',
     vote_subtitle: 'Résultats en direct des dégustations Event Horizon dans le monde entier.',
@@ -468,6 +472,7 @@ const TRANSLATIONS = {
     stat_owners: 'Colaboradores',
     stat_impact: 'Puntuación de impacto',
     time_manual_label: 'O más largo:',
+    hero_paper_link: 'Leer el informe técnico',
 
     vote_title: 'Voto de las catas Horizon',
     vote_subtitle: 'Resultados en vivo de las catas Event Horizon en todo el mundo.',
@@ -582,6 +587,7 @@ const TRANSLATIONS = {
     stat_owners: 'Beitragende',
     stat_impact: 'Impact-Score',
     time_manual_label: 'Oder länger:',
+    hero_paper_link: 'Whitepaper lesen',
 
     vote_title: 'Horizon-Verkostung Abstimmung',
     vote_subtitle: 'Live-Ergebnisse von Event Horizon-Verkostungen weltweit.',
@@ -696,6 +702,7 @@ const TRANSLATIONS = {
     stat_owners: '投稿者',
     stat_impact: 'インパクトスコア',
     time_manual_label: 'または長め：',
+    hero_paper_link: 'ホワイトペーパーを読む',
 
     vote_title: '現地 Horizon テイスティング投票',
     vote_subtitle: '世界各地の Event Horizon テイスティングのリアルタイム結果。',
@@ -810,6 +817,7 @@ const TRANSLATIONS = {
     stat_owners: '기여자',
     stat_impact: '임팩트 점수',
     time_manual_label: '또는 더 길게:',
+    hero_paper_link: '백서 읽기',
 
     vote_title: '현장 Horizon 테이스팅 투표',
     vote_subtitle: '전 세계 Event Horizon 테이스팅의 실시간 결과.',
