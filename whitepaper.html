@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Horizon White Paper — Horizon Lab</title>
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="Horizon White Paper: Pressure modulation in brewed coffee. A controlled low-pressure approach to post-extraction sensory expression.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,400;0,500;0,700;1,400&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Sans+JP:wght@400;500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css?v=8">
+  <style>
+    /* ===== White paper prose ===== */
+    .wp-section { opacity: 1; transform: none; }
+
+    .wp-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.6875rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      text-decoration: none;
+      margin-bottom: 32px;
+      transition: color var(--ease-fast);
+    }
+    .wp-back:hover { color: var(--black); }
+
+    .wp-eyebrow {
+      font-size: 0.6875rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .wp-title {
+      font-size: clamp(1.6rem, 5.5vw, 2.4rem);
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      color: var(--black);
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .wp-subtitle {
+      font-size: 0.9375rem;
+      font-weight: 400;
+      font-style: italic;
+      color: var(--text-secondary);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 24px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .wp-meta {
+      font-size: 0.6875rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      text-align: center;
+      margin-bottom: 56px;
+    }
+    .wp-meta span + span::before { content: '·'; margin: 0 8px; color: var(--border); }
+
+    .wp-abstract {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 48px;
+    }
+    .wp-abstract h2 {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .wp-abstract p {
+      font-size: 0.9375rem;
+      line-height: 1.7;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .wp-abstract p:last-child { margin-bottom: 0; }
+
+    .wp-h2 {
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-top: 40px;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .wp-h2 .wp-num {
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-right: 10px;
+    }
+
+    .wp-h3 {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      color: var(--black);
+      margin-top: 24px;
+      margin-bottom: 10px;
+    }
+
+    .wp-p {
+      font-size: 0.9375rem;
+      line-height: 1.75;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+
+    .wp-ul, .wp-ol {
+      font-size: 0.9375rem;
+      line-height: 1.75;
+      color: var(--text);
+      margin: 0 0 14px 22px;
+    }
+    .wp-ul li, .wp-ol li { margin-bottom: 4px; }
+
+    .wp-formula {
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      padding: 14px 18px;
+      margin: 14px 0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.9375rem;
+      text-align: center;
+      letter-spacing: 0;
+    }
+    .wp-formula em { font-style: italic; }
+    .wp-formula sub { font-size: 0.75em; }
+
+    .wp-defs {
+      list-style: none;
+      margin: 0 0 14px 0;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      line-height: 1.7;
+    }
+    .wp-defs li { margin-bottom: 4px; }
+    .wp-defs li:last-child { margin-bottom: 0; }
+    .wp-defs strong { font-weight: 700; margin-right: 6px; }
+
+    .wp-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 0.875rem;
+    }
+    .wp-table th, .wp-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .wp-table th {
+      font-size: 0.6875rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .wp-table tr:last-child td { border-bottom: none; }
+
+    .wp-callout {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+      font-style: italic;
+      line-height: 1.6;
+      padding: 14px 16px;
+      border-left: 2px solid var(--border);
+      margin: 18px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <article class="section wp-section">
+    <a class="wp-back" href="index.html">&larr; Back to Horizon Lab</a>
+
+    <p class="wp-eyebrow">Horizon White Paper</p>
+    <h1 class="wp-title">Pressure Modulation in Brewed Coffee</h1>
+    <p class="wp-subtitle">A controlled low-pressure approach to post-extraction sensory expression.</p>
+    <p class="wp-meta">
+      <span>Acaia Research &amp; Development</span>
+      <span>Version 1.1</span>
+    </p>
+
+    <div class="wp-abstract">
+      <h2>Abstract</h2>
+      <p>Horizon&trade; is a controlled low-pressure system designed to temporarily reduce the ambient pressure surrounding freshly brewed coffee to approximately 50&nbsp;kPa (~0.5&nbsp;atm). Unlike traditional brewing variables (grind size, temperature, agitation, ratio), Horizon operates post-extraction, modulating the gas&ndash;liquid equilibrium of the beverage without altering its composition through dilution or agitation.</p>
+      <p>In controlled blind tastings, a majority of participants reported increased smoothness, enhanced perceived sweetness, and greater structural integration in coffee exposed to reduced pressure prior to evaluation.</p>
+      <p>This paper outlines the physical basis, hypothesized mechanisms, and preliminary sensory and instrumental observations associated with controlled depressurization of brewed coffee.</p>
+    </div>
+
+    <h2 class="wp-h2"><span class="wp-num">1</span>Background</h2>
+    <p class="wp-p">Coffee extraction is influenced by variables including:</p>
+    <ul class="wp-ul">
+      <li>Grind distribution</li>
+      <li>Water chemistry</li>
+      <li>Temperature</li>
+      <li>Contact time</li>
+      <li>Agitation</li>
+      <li>Brew ratio</li>
+    </ul>
+    <p class="wp-p">However, once brewed, coffee remains a multiphase system containing:</p>
+    <ul class="wp-ul">
+      <li>Dissolved gases (primarily CO<sub>2</sub>)</li>
+      <li>Volatile aromatic compounds</li>
+      <li>Dissolved solids</li>
+      <li>Emulsified oils</li>
+    </ul>
+    <p class="wp-p">Atmospheric pressure governs the equilibrium between dissolved gases and the headspace above the liquid, yet it has historically remained constant in tasting environments (~101&nbsp;kPa).</p>
+    <p class="wp-p">Horizon introduces pressure as a post-extraction parameter.</p>
+
+    <h2 class="wp-h2"><span class="wp-num">2</span>System Description</h2>
+    <p class="wp-p">Horizon temporarily reduces ambient pressure surrounding a brewed cup to approximately:</p>
+    <table class="wp-table">
+      <thead>
+        <tr><th>Setting</th><th>Pressure</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>High Setting</td><td>50&nbsp;kPa &plusmn; tolerance</td></tr>
+        <tr><td>Low Setting</td><td>70&nbsp;kPa &plusmn; tolerance</td></tr>
+      </tbody>
+    </table>
+    <p class="wp-p">The system:</p>
+    <ul class="wp-ul">
+      <li>Does not agitate the liquid</li>
+      <li>Does not heat or cool the beverage</li>
+      <li>Does not introduce additional gases</li>
+      <li>Does not alter brew ratio</li>
+    </ul>
+    <p class="wp-p">The intervention is purely environmental: a temporary reduction in atmospheric pressure around the cup.</p>
+
+    <h2 class="wp-h2"><span class="wp-num">3</span>Physical Considerations</h2>
+
+    <h3 class="wp-h3">3.1 Gas&ndash;Liquid Equilibrium</h3>
+    <p class="wp-p">According to Henry&rsquo;s Law:</p>
+    <div class="wp-formula"><em>C</em> = <em>k</em><sub>H</sub> &middot; <em>P</em></div>
+    <p class="wp-p">Where:</p>
+    <ul class="wp-defs">
+      <li><strong><em>C</em></strong> concentration of dissolved gas</li>
+      <li><strong><em>k</em><sub>H</sub></strong> Henry&rsquo;s constant</li>
+      <li><strong><em>P</em></strong> partial pressure of gas</li>
+    </ul>
+    <p class="wp-p">Reducing ambient pressure lowers the equilibrium concentration of dissolved gases, potentially increasing outgassing.</p>
+    <p class="wp-p">Coffee contains dissolved CO<sub>2</sub> generated during roasting and retained in brewed liquid. Alterations in gas concentration may influence:</p>
+    <ul class="wp-ul">
+      <li>Perceived acidity sharpness</li>
+      <li>Texture</li>
+      <li>Aromatic release dynamics</li>
+    </ul>
+
+    <h3 class="wp-h3">3.2 Volatile Compound Expression</h3>
+    <p class="wp-p">Volatile aromatic compounds contribute significantly to perceived sweetness and complexity.</p>
+    <p class="wp-p">Lowering ambient pressure may:</p>
+    <ul class="wp-ul">
+      <li>Increase vapor-phase concentration of certain volatiles</li>
+      <li>Shift aroma perception dynamics</li>
+      <li>Temporarily alter aroma release rate</li>
+    </ul>
+    <p class="wp-p">These changes may influence retronasal perception during tasting.</p>
+
+    <h3 class="wp-h3">3.3 Mouthfeel &amp; Perceived Sweetness</h3>
+    <p class="wp-p">Texture perception in coffee is influenced by:</p>
+    <ul class="wp-ul">
+      <li>Dissolved gas content</li>
+      <li>Oil dispersion</li>
+      <li>Temperature</li>
+      <li>Total dissolved solids (TDS)</li>
+    </ul>
+    <p class="wp-p">Changes in dissolved gas behavior under reduced pressure may modify tactile sensation, contributing to reported increases in smoothness and integration.</p>
+    <p class="wp-p">No compositional changes (e.g., sugar concentration) have been observed; sweetness perception appears sensory rather than chemical.</p>
+
+    <h2 class="wp-h2"><span class="wp-num">4</span>Preliminary Sensory Evaluation</h2>
+
+    <h3 class="wp-h3">4.1 Method Overview</h3>
+    <ul class="wp-ul">
+      <li>Brewed coffee split into two equal-weight cups</li>
+      <li>One cup exposed to controlled low pressure</li>
+      <li>One cup maintained at ambient pressure</li>
+      <li>Blind paired or triangle testing</li>
+      <li>Participants included trained and untrained tasters</li>
+    </ul>
+
+    <h3 class="wp-h3">4.2 Reported Outcomes</h3>
+    <p class="wp-p">A majority of participants described the depressurized sample as:</p>
+    <ul class="wp-ul">
+      <li>Smoother</li>
+      <li>Less sharp in acidity</li>
+      <li>More rounded</li>
+      <li>Sweeter in perceived finish</li>
+      <li>More structurally integrated</li>
+    </ul>
+    <p class="wp-p">The effect was consistently distinguishable in blind comparison by a significant portion of participants.</p>
+
+    <h3 class="wp-h3">4.3 Instrumental Observations</h3>
+    <p class="wp-p">In controlled internal measurements using refractometry (TDS), samples subjected to Horizon treatment frequently showed slightly higher TDS values relative to untreated controls derived from the same brew and divided by equal mass.</p>
+    <p class="wp-p">This trend has been observed across repeated trials. Further quantitative analysis is ongoing.</p>
+
+    <h2 class="wp-h2"><span class="wp-num">5</span>Limitations &amp; Ongoing Research</h2>
+    <p class="wp-p">Current findings are sensory and preliminary.</p>
+    <p class="wp-p">Areas under continued investigation include:</p>
+    <ul class="wp-ul">
+      <li>Quantitative measurement of dissolved CO<sub>2</sub> pre- and post-treatment</li>
+      <li>Gas chromatography&ndash;mass spectrometry (GC-MS) analysis of volatile compounds</li>
+      <li>Temporal dynamics of gas re-equilibration after depressurization</li>
+      <li>Expanded sensory panel testing with statistical validation</li>
+      <li>Cross-comparison across origins, roast levels, and brew methods</li>
+    </ul>
+
+    <h2 class="wp-h2"><span class="wp-num">6</span>Safety &amp; Operating Conditions</h2>
+    <p class="wp-p">Horizon operates within controlled low-pressure ranges:</p>
+    <ul class="wp-ul">
+      <li>~50&nbsp;kPa (~0.5&nbsp;atm)</li>
+      <li>~70&nbsp;kPa (~0.7&nbsp;atm)</li>
+    </ul>
+    <p class="wp-p">These conditions:</p>
+    <ul class="wp-ul">
+      <li>Do not induce boiling at typical tasting temperatures</li>
+      <li>Do not introduce chemical changes</li>
+      <li>Do not alter beverage composition</li>
+    </ul>
+
+    <h2 class="wp-h2"><span class="wp-num">7</span>Reversibility</h2>
+    <p class="wp-p">The effects of pressure modulation are:</p>
+    <ul class="wp-ul">
+      <li>Temporary</li>
+      <li>Non-destructive</li>
+      <li>Environmentally induced</li>
+    </ul>
+    <p class="wp-p">Upon return to ambient pressure, gas equilibrium gradually stabilizes over time.</p>
+
+    <h2 class="wp-h2"><span class="wp-num">8</span>Conclusion</h2>
+    <p class="wp-p">Horizon&trade; introduces controlled pressure modulation as a post-extraction variable in coffee preparation.</p>
+    <p class="wp-p">Preliminary findings indicate:</p>
+    <ul class="wp-ul">
+      <li>Improved smoothness</li>
+      <li>Reduced perceived sharpness</li>
+      <li>Enhanced sweetness perception</li>
+      <li>Greater structural integration</li>
+    </ul>
+    <p class="wp-p">These effects are hypothesized to result from interactions between gas&ndash;liquid equilibrium, volatile expression, and dissolved gas behavior.</p>
+    <p class="wp-p">Horizon expands the parameter space of coffee evaluation by introducing atmospheric pressure as a controllable variable after brewing.</p>
+  </article>
+
+  <footer class="footer">
+    <p class="footer-brand">Horizon Lab &mdash; A community project by <strong><a href="https://acaia.co" target="_blank" rel="noopener">Acaia</a></strong></p>
+  </footer>
+
+</body>
+</html>

@@ -1087,6 +1087,19 @@ select.input {
 }
 .footer-brand a:hover { color: var(--white); }
 
+.footer-links {
+  margin-top: 12px;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.footer-links a {
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: color var(--ease-fast);
+}
+.footer-links a:hover { color: var(--white); }
+
 /* ===== SCROLL FADE ===== */
 .section {
   opacity: 0;
