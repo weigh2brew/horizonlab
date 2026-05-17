@@ -14,6 +14,12 @@ const TRANSLATIONS = {
     time_manual_label: 'Or longer:',
     hero_paper_link: 'Read the White Paper',
 
+    paper_section_title: 'The Science of Horizon',
+    paper_section_subtitle: 'Why a brief drop in ambient pressure changes what’s in the cup — without altering the brew.',
+    paper_eyebrow: 'Horizon White Paper · v1.2',
+    paper_headline: 'Pressure Modulation in Brewed Coffee',
+    paper_blurb: 'A controlled low-pressure approach to post-extraction sensory expression. Acaia Research & Development.',
+
     vote_title: 'In-person Horizon Tasting Vote',
     vote_subtitle: 'Live results from Event Horizon tastings worldwide.',
     vote_question: 'Would Horizon make your coffee better?',
@@ -47,9 +53,10 @@ const TRANSLATIONS = {
     chart_flavor_desc: 'Which taste attributes changed most often?',
     chart_empty: 'Waiting for data...',
 
-    feed_title: 'Community Feed',
-    feed_subtitle: 'Recent experiments from Horizon owners around the world.',
-    feed_empty: 'No brews logged yet. Be the first!',
+    feed_title: 'Most Improved Flavors',
+    feed_subtitle: 'Across all logged brews, how often did each flavor get stronger after Horizon?',
+    feed_empty: 'No data yet. Log a brew to start the chart.',
+    flavor_basis: 'Based on {n} brews',
 
     comments_title: 'What People Are Saying',
     comments_subtitle: "Comments we've received from Horizon owners and testers.",
@@ -129,6 +136,12 @@ const TRANSLATIONS = {
     time_manual_label: '或更長：',
     hero_paper_link: '閱讀白皮書',
 
+    paper_section_title: 'Horizon 的科學原理',
+    paper_section_subtitle: '為何短暫降壓能改變杯中風味——而不改變沖煮本身。',
+    paper_eyebrow: 'Horizon 白皮書 · v1.2',
+    paper_headline: '咖啡的壓力調控',
+    paper_blurb: '一種於萃取後進行的低壓控制方式，影響感官表現。由 Acaia 研發團隊撰寫。',
+
     vote_title: '現場 Horizon 品飲票選',
     vote_subtitle: '來自全球 Event Horizon 品飲會的即時結果。',
     vote_question: 'Horizon 能讓你的咖啡更好嗎？',
@@ -162,9 +175,10 @@ const TRANSLATIONS = {
     chart_flavor_desc: '哪些風味特質變化最為明顯？',
     chart_empty: '等待資料中...',
 
-    feed_title: '社群動態',
-    feed_subtitle: '來自全球 Horizon 持有者的最新實驗。',
-    feed_empty: '還沒有紀錄，搶先分享吧！',
+    feed_title: '最常變強的風味',
+    feed_subtitle: '在所有紀錄中，每一項風味在 Horizon 後變強的比例。',
+    feed_empty: '尚無資料，先記錄一杯啟動圖表吧。',
+    flavor_basis: '統計自 {n} 杯',
 
     comments_title: '大家怎麼說',
     comments_subtitle: '來自 Horizon 持有者與測試者的回饋。',
@@ -244,6 +258,12 @@ const TRANSLATIONS = {
     time_manual_label: '或更长：',
     hero_paper_link: '阅读白皮书',
 
+    paper_section_title: 'Horizon 的科学原理',
+    paper_section_subtitle: '为何短暂降压能改变杯中风味——而不改变冲煮本身。',
+    paper_eyebrow: 'Horizon 白皮书 · v1.2',
+    paper_headline: '咖啡的压力调控',
+    paper_blurb: '一种于萃取后进行的低压控制方式，影响感官表现。由 Acaia 研发团队撰写。',
+
     vote_title: '现场 Horizon 品鉴投票',
     vote_subtitle: '来自全球 Event Horizon 品鉴会的实时结果。',
     vote_question: 'Horizon 能让你的咖啡更好吗？',
@@ -277,9 +297,10 @@ const TRANSLATIONS = {
     chart_flavor_desc: '哪些风味特质变化最明显？',
     chart_empty: '等待数据中...',
 
-    feed_title: '社群动态',
-    feed_subtitle: '来自全球 Horizon 持有者的最新实验。',
-    feed_empty: '还没有记录，来抢先分享吧！',
+    feed_title: '最常变强的风味',
+    feed_subtitle: '在所有记录中，每一项风味在 Horizon 后变强的比例。',
+    feed_empty: '尚无数据，先记录一杯启动图表吧。',
+    flavor_basis: '统计自 {n} 杯',
 
     comments_title: '大家怎么说',
     comments_subtitle: '来自 Horizon 持有者与测试者的反馈。',
@@ -359,6 +380,12 @@ const TRANSLATIONS = {
     time_manual_label: 'Ou plus long :',
     hero_paper_link: 'Lire le livre blanc',
 
+    paper_section_title: 'La science de Horizon',
+    paper_section_subtitle: 'Pourquoi une brève baisse de pression ambiante change ce qui se trouve dans la tasse — sans modifier l’infusion.',
+    paper_eyebrow: 'Livre blanc Horizon · v1.2',
+    paper_headline: 'Modulation de pression dans le café infusé',
+    paper_blurb: 'Une approche contrôlée à basse pression de l’expression sensorielle post-extraction. Recherche & Développement Acaia.',
+
     vote_title: 'Vote des dégustations Horizon',
     vote_subtitle: 'Résultats en direct des dégustations Event Horizon dans le monde entier.',
     vote_question: 'Horizon améliore-t-il votre café ?',
@@ -392,9 +419,10 @@ const TRANSLATIONS = {
     chart_flavor_desc: 'Quels attributs gustatifs ont le plus changé ?',
     chart_empty: 'En attente de données...',
 
-    feed_title: 'Fil communautaire',
-    feed_subtitle: "Dernières expériences de propriétaires Horizon du monde entier.",
-    feed_empty: 'Aucune dégustation pour le moment. Soyez le premier !',
+    feed_title: 'Arômes les plus renforcés',
+    feed_subtitle: 'Sur l’ensemble des dégustations, quelle est la fréquence de renforcement de chaque arôme avec Horizon ?',
+    feed_empty: 'Aucune donnée pour l’instant. Enregistrez une dégustation pour lancer le graphique.',
+    flavor_basis: 'Sur la base de {n} dégustations',
 
     comments_title: 'Ce que disent les gens',
     comments_subtitle: 'Commentaires reçus de propriétaires et testeurs Horizon.',
@@ -474,6 +502,12 @@ const TRANSLATIONS = {
     time_manual_label: 'O más largo:',
     hero_paper_link: 'Leer el informe técnico',
 
+    paper_section_title: 'La ciencia de Horizon',
+    paper_section_subtitle: 'Por qué una breve caída de la presión ambiental cambia lo que hay en la taza, sin alterar la infusión.',
+    paper_eyebrow: 'Informe técnico Horizon · v1.2',
+    paper_headline: 'Modulación de presión en el café infusionado',
+    paper_blurb: 'Un enfoque controlado de baja presión para la expresión sensorial post-extracción. Investigación y Desarrollo Acaia.',
+
     vote_title: 'Voto de las catas Horizon',
     vote_subtitle: 'Resultados en vivo de las catas Event Horizon en todo el mundo.',
     vote_question: '¿Horizon mejora tu café?',
@@ -507,9 +541,10 @@ const TRANSLATIONS = {
     chart_flavor_desc: '¿Qué atributos de sabor cambiaron más?',
     chart_empty: 'Esperando datos...',
 
-    feed_title: 'Feed comunitario',
-    feed_subtitle: 'Experimentos recientes de propietarios Horizon de todo el mundo.',
-    feed_empty: 'Aún sin catas. ¡Sé el primero!',
+    feed_title: 'Sabores que más mejoran',
+    feed_subtitle: 'En todas las catas registradas, ¿con qué frecuencia se intensifica cada sabor tras Horizon?',
+    feed_empty: 'Aún no hay datos. Registra una cata para iniciar el gráfico.',
+    flavor_basis: 'Basado en {n} catas',
 
     comments_title: 'Lo que dice la gente',
     comments_subtitle: 'Comentarios recibidos de propietarios y probadores de Horizon.',
@@ -589,6 +624,12 @@ const TRANSLATIONS = {
     time_manual_label: 'Oder länger:',
     hero_paper_link: 'Whitepaper lesen',
 
+    paper_section_title: 'Die Wissenschaft hinter Horizon',
+    paper_section_subtitle: 'Warum ein kurzer Abfall des Umgebungsdrucks verändert, was in der Tasse landet – ohne die Zubereitung zu verändern.',
+    paper_eyebrow: 'Horizon Whitepaper · v1.2',
+    paper_headline: 'Druckmodulation in gebrühtem Kaffee',
+    paper_blurb: 'Ein kontrollierter Niederdruckansatz für die sensorische Entfaltung nach der Extraktion. Acaia Forschung & Entwicklung.',
+
     vote_title: 'Horizon-Verkostung Abstimmung',
     vote_subtitle: 'Live-Ergebnisse von Event Horizon-Verkostungen weltweit.',
     vote_question: 'Macht Horizon deinen Kaffee besser?',
@@ -622,9 +663,10 @@ const TRANSLATIONS = {
     chart_flavor_desc: 'Welche Geschmacksmerkmale haben sich am häufigsten verändert?',
     chart_empty: 'Warte auf Daten...',
 
-    feed_title: 'Community-Feed',
-    feed_subtitle: 'Aktuelle Experimente von Horizon-Besitzern weltweit.',
-    feed_empty: 'Noch keine Verkostungen. Mach den Anfang!',
+    feed_title: 'Am stärksten verstärkte Aromen',
+    feed_subtitle: 'In allen erfassten Verkostungen: Wie oft wird jedes Aroma mit Horizon stärker?',
+    feed_empty: 'Noch keine Daten. Erfasse eine Verkostung, um das Diagramm zu starten.',
+    flavor_basis: 'Basierend auf {n} Verkostungen',
 
     comments_title: 'Was andere sagen',
     comments_subtitle: 'Kommentare von Horizon-Besitzern und Testern.',
@@ -704,6 +746,12 @@ const TRANSLATIONS = {
     time_manual_label: 'または長め：',
     hero_paper_link: 'ホワイトペーパーを読む',
 
+    paper_section_title: 'Horizon のサイエンス',
+    paper_section_subtitle: '抽出には手を加えず、わずかな減圧だけでカップの中身がどう変わるのか。',
+    paper_eyebrow: 'Horizon ホワイトペーパー · v1.2',
+    paper_headline: '抽出後のコーヒーにおける圧力モジュレーション',
+    paper_blurb: '抽出後の感覚表現を引き出す、制御された低圧アプローチ。Acaia 研究開発チームによる発表。',
+
     vote_title: '現地 Horizon テイスティング投票',
     vote_subtitle: '世界各地の Event Horizon テイスティングのリアルタイム結果。',
     vote_question: 'Horizon でコーヒーは良くなる？',
@@ -737,9 +785,10 @@ const TRANSLATIONS = {
     chart_flavor_desc: '最も変化した味の要素は？',
     chart_empty: 'データを待っています...',
 
-    feed_title: 'コミュニティフィード',
-    feed_subtitle: '世界中の Horizon オーナーの最新実験。',
-    feed_empty: 'まだ記録がありません。最初の投稿者になろう！',
+    feed_title: 'もっとも強くなった風味',
+    feed_subtitle: 'すべての記録で、Horizon によって各風味が強くなった割合。',
+    feed_empty: 'まだデータがありません。1杯記録してチャートを起動しましょう。',
+    flavor_basis: '{n} 件の記録に基づく',
 
     comments_title: 'みんなの声',
     comments_subtitle: 'Horizon オーナーとテスターから届いたコメント。',
@@ -819,6 +868,12 @@ const TRANSLATIONS = {
     time_manual_label: '또는 더 길게:',
     hero_paper_link: '백서 읽기',
 
+    paper_section_title: 'Horizon의 과학',
+    paper_section_subtitle: '추출은 그대로 두고, 잠깐의 압력 변화만으로 컵 속이 어떻게 달라지는가.',
+    paper_eyebrow: 'Horizon 백서 · v1.2',
+    paper_headline: '추출된 커피의 압력 모듈레이션',
+    paper_blurb: '추출 후 감각 표현을 위한 제어된 저압 접근. Acaia 연구개발팀.',
+
     vote_title: '현장 Horizon 테이스팅 투표',
     vote_subtitle: '전 세계 Event Horizon 테이스팅의 실시간 결과.',
     vote_question: 'Horizon으로 커피가 더 좋아질까?',
@@ -852,9 +907,10 @@ const TRANSLATIONS = {
     chart_flavor_desc: '가장 많이 변화한 풍미 요소는?',
     chart_empty: '데이터 대기 중...',
 
-    feed_title: '커뮤니티 피드',
-    feed_subtitle: '전 세계 Horizon 사용자의 최신 실험.',
-    feed_empty: '아직 기록이 없어요. 먼저 공유해 보세요!',
+    feed_title: '가장 많이 강해진 풍미',
+    feed_subtitle: '모든 기록에서 Horizon으로 각 풍미가 강해진 빈도.',
+    feed_empty: '아직 데이터가 없어요. 한 잔 기록해 차트를 시작해 보세요.',
+    flavor_basis: '{n}건의 기록 기준',
 
     comments_title: '사람들의 이야기',
     comments_subtitle: 'Horizon 사용자와 테스터에게서 받은 댓글입니다.',

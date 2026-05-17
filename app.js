@@ -6,7 +6,6 @@ const CONFIG = {
   // Leave blank to run in demo mode (localStorage only).
   sheetUrl: 'https://script.google.com/macros/s/AKfycbxrCLVsjmxSdJMhlLebFOjwRMcwGxiopXFWkSRUJYCPQ2kXd1Rd7PkmxlJcHLXACSaQ/exec',
   pollInterval: 30000,
-  feedPageSize: 10,
 
   // horizonvote's deployed Apps Script — reads the shared vote sheet.
   voteUrl: 'https://script.google.com/macros/s/AKfycbxgvqBZxYPq3yGLnJ75AitMoYym2oNkddqRN8hzRG4yuKylxolksVkcx6FYgoaZ9x2RNg/exec',
@@ -20,7 +19,6 @@ const state = {
   token: null,
   serial: null,
   aggregates: null,
-  feed: [],
   comments: null,
   votes: null,
   filters: { process: '', roast: '' },
@@ -62,7 +60,6 @@ function applyTranslations(lang) {
 
   // Re-render dynamic sections so their localized strings refresh.
   if (state.aggregates) renderDashboard(state.aggregates);
-  if (state.feed && state.feed.length) renderFeed(state.feed);
   if (state.comments) renderComments(state.comments);
   if (state.votes) renderVotes(state.votes);
 }
@@ -98,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initSlider();
   initFilters();
   fetchDashboard();
-  fetchFeed();
   fetchComments();
   fetchVotes();
   setInterval(fetchDashboard, CONFIG.pollInterval);
@@ -343,7 +339,6 @@ async function handleSubmit(e) {
 
     setTimeout(() => {
       fetchDashboard();
-      fetchFeed();
     }, 1500);
 
   } catch (err) {
@@ -529,6 +524,7 @@ function renderDashboard(data) {
 
   renderSummary(data);
   renderGaps(data);
+  renderFlavorStronger(data);
 }
 
 function renderSummary(data) {
@@ -657,82 +653,56 @@ function scrollToLog() {
   document.getElementById('log').scrollIntoView({ behavior: 'smooth' });
 }
 
-// ---------- COMMUNITY FEED ----------
-async function fetchFeed() {
-  try {
-    let entries;
-    if (!CONFIG.sheetUrl) {
-      try { entries = JSON.parse(localStorage.getItem('horizonlab_demo_feed') || '[]'); } catch { entries = []; }
-    } else {
-      const url = CONFIG.sheetUrl + '?action=read_feed&limit=' + CONFIG.feedPageSize + '&_t=' + Date.now();
-      const res = await fetch(url);
-      const json = await res.json();
-      entries = json.entries || [];
-    }
-
-    state.feed = entries;
-    renderFeed(entries);
-  } catch (err) {
-    console.error('Feed fetch error:', err);
-  }
-}
-
-function renderFeed(entries) {
+// ---------- FLAVOR IMPROVEMENTS ----------
+// Renders the "Most Improved Flavors" section: for each flavor, the
+// percentage of matched brews that reported it as got-stronger.
+function renderFlavorStronger(data) {
   const list = $('#feedList');
+  if (!list) return;
 
-  if (!entries || entries.length === 0) {
+  const total = data?.total_brews || 0;
+  if (!total) {
     list.innerHTML = '<div class="chart-empty">' + escapeHtml(t('feed_empty')) + '</div>';
     return;
   }
 
-  list.innerHTML = entries.map(e => {
-    const flavors = typeof e.flavors === 'string' ? e.flavors : (e.flavors || []).join(', ');
-    const timeAgo = formatTimeAgo(e.timestamp);
-    const roastKey = 'roast_' + (e.roast || '').toLowerCase();
-    const roastLabel = t(roastKey) !== roastKey ? t(roastKey) : (e.roast || '');
+  const entries = Object.entries(data.by_flavor || {})
+    .map(([key, val]) => {
+      // Backend may return either {more, less} (new) or a bare count (legacy).
+      const more = typeof val === 'object' ? (val.more || 0) : (val || 0);
+      // Drop unknown / corrupt keys; only keep flavors with a known translation.
+      const flavorKey = 'flavor_' + key.toLowerCase().replace(/ .*/, '');
+      if (t(flavorKey) === flavorKey) return null;
+      return { key, more, pct: Math.round((more / total) * 100) };
+    })
+    .filter(f => f && f.pct > 0)
+    .sort((a, b) => b.pct - a.pct);
 
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="chart-empty">' + escapeHtml(t('feed_empty')) + '</div>';
+    return;
+  }
+
+  const rows = entries.map(f => {
+    const flavorKey = 'flavor_' + f.key.toLowerCase().replace(/ .*/, '');
+    const label = t(flavorKey) !== flavorKey ? t(flavorKey) : f.key;
     return `
-      <div class="feed-card">
-        <div class="feed-header">
-          <span class="feed-origin">${escapeHtml(e.origin)}</span>
-          <span class="feed-rating">${e.rating}/5</span>
+      <div class="improve-row">
+        <span class="improve-label">${escapeHtml(label)}</span>
+        <div class="improve-track">
+          <div class="improve-fill" style="width: ${f.pct}%"></div>
         </div>
-        <div class="feed-meta">
-          <span class="feed-tag">${escapeHtml(e.process || '')}</span>
-          <span class="feed-tag">${escapeHtml(roastLabel)}</span>
-          <span class="feed-tag">${escapeHtml(e.brew_method || '')}</span>
-          <span class="feed-tag">${escapeHtml(formatTreatment(e.treatment_mins))}</span>
-        </div>
-        ${flavors ? `<div class="feed-meta">${flavors.split(',').map(s => s.trim()).filter(Boolean).map(f => {
-          // "+Acidity" / "-Acidity" / bare "Acidity" (legacy)
-          let dir = 'more', name = f;
-          if (f[0] === '+') { dir = 'more'; name = f.slice(1); }
-          else if (f[0] === '-') { dir = 'less'; name = f.slice(1); }
-          const flavorKey = 'flavor_' + name.toLowerCase().replace(/ .*/, '');
-          const flavorLabel = t(flavorKey);
-          // Drop unknown / corrupt tokens (e.g. "#ERROR!" from a broken sheet cell).
-          if (flavorLabel === flavorKey) return '';
-          const arrow = dir === 'more' ? '↑' : '↓';
-          return '<span class="feed-tag feed-tag-' + dir + '">' + escapeHtml(flavorLabel) + ' ' + arrow + '</span>';
-        }).filter(Boolean).join('')}</div>` : ''}
-        ${e.note ? `<p class="feed-note">"${escapeHtml(e.note)}"</p>` : ''}
-        <div class="feed-time">${escapeHtml(timeAgo)}</div>
+        <span class="improve-pct">${f.pct}%</span>
       </div>
     `;
   }).join('');
-}
 
-function formatTimeAgo(timestamp) {
-  if (!timestamp) return '';
-  const now = new Date();
-  const then = new Date(timestamp);
-  const diff = Math.floor((now - then) / 1000);
+  const basis = t('flavor_basis').replace('{n}', total.toLocaleString());
 
-  if (diff < 60) return t('time_just_now');
-  if (diff < 3600) return Math.floor(diff / 60) + t('time_m_ago');
-  if (diff < 86400) return Math.floor(diff / 3600) + t('time_h_ago');
-  if (diff < 604800) return Math.floor(diff / 86400) + t('time_d_ago');
-  return then.toLocaleDateString(state.lang);
+  list.innerHTML = `
+    <div class="improve-chart">${rows}</div>
+    <p class="improve-basis">${escapeHtml(basis)}</p>
+  `;
 }
 
 function escapeHtml(str) {

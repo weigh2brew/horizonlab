@@ -179,27 +179,64 @@ body {
   padding: clamp(1.125rem, 1.2vw, 1.375rem) clamp(1.625rem, 1.473vw, 1.875rem);
 }
 
-.hero-paper {
+.paper-card {
+  display: block;
+  background: var(--black);
+  color: var(--white);
+  border-radius: var(--radius);
+  padding: 36px 28px;
+  text-align: center;
+  text-decoration: none;
+  transition: transform var(--ease-fast), background var(--ease-fast);
+}
+.paper-card:hover { background: #1a1a1a; transform: translateY(-2px); }
+
+.paper-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 14px;
+}
+
+.paper-headline {
+  font-family: var(--font);
+  font-size: clamp(1.35rem, 4.5vw, 1.9rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+
+.paper-blurb {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.6;
+  max-width: 480px;
+  margin: 0 auto 24px;
+}
+
+.paper-cta {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 20px;
-  background: var(--black);
-  color: var(--white);
+  padding: 12px 24px;
+  background: var(--white);
+  color: var(--black);
   border-radius: var(--radius-pill);
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  text-decoration: none;
-  transition: all var(--ease-fast);
+  transition: transform var(--ease-fast);
 }
-.hero-paper::after {
+.paper-cta::after {
   content: '\2192';
   transition: transform var(--ease-fast);
 }
-.hero-paper:hover { background: #333; }
-.hero-paper:hover::after { transform: translateX(3px); }
+.paper-card:hover .paper-cta::after { transform: translateX(3px); }
 
 /* ===== BUTTONS ===== */
 .btn {
@@ -947,61 +984,73 @@ select.input {
   margin-bottom: 28px;
 }
 
-/* ===== COMMUNITY FEED ===== */
-.feed-list { display: flex; flex-direction: column; gap: 10px; }
-
-.feed-card {
+/* ===== FLAVOR IMPROVEMENTS ===== */
+.feed-list {
   background: var(--bg-card);
   border-radius: var(--radius);
-  padding: 20px;
+  padding: 24px;
 }
 
-.feed-header {
+.improve-chart {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.improve-row {
+  display: grid;
+  grid-template-columns: 90px 1fr 48px;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
+  gap: 12px;
 }
 
-.feed-origin {
-  font-weight: 700;
+.improve-label {
   font-size: 0.8125rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.feed-rating {
-  font-weight: 700;
-  font-size: 0.8125rem;
-  color: var(--green);
-}
-
-.feed-meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
-
-.feed-tag {
-  font-size: 0.6875rem;
   font-weight: 500;
-  padding: 3px 10px;
+  color: var(--text-secondary);
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.improve-track {
+  position: relative;
+  height: 22px;
   background: rgba(23, 23, 23, 0.05);
-  border-radius: var(--radius-pill);
-  color: var(--text-secondary);
+  border-radius: 4px;
+  overflow: hidden;
 }
 
-.feed-tag-more { color: var(--green); }
-.feed-tag-less { color: var(--danger); }
+.improve-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--green);
+  border-radius: 4px;
+  transition: width 0.7s cubic-bezier(0.3, 1, 0.3, 1);
+}
 
-.feed-note {
+.improve-pct {
   font-size: 0.8125rem;
-  color: var(--text-secondary);
-  line-height: 1.6;
-  font-style: italic;
+  font-weight: 700;
+  color: var(--green);
+  text-align: left;
 }
 
-.feed-time {
-  font-size: 0.625rem;
+.improve-basis {
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--text-muted);
-  margin-top: 8px;
-  letter-spacing: 0.05em;
+  text-align: center;
+  margin-top: 20px;
+}
+
+@media (max-width: 480px) {
+  .improve-row { grid-template-columns: 76px 1fr 42px; gap: 8px; }
+  .improve-label { font-size: 0.75rem; }
 }
 
 /* ===== COMMENTS ===== */
