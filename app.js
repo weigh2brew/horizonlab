@@ -21,7 +21,6 @@ const state = {
   aggregates: null,
   comments: null,
   votes: null,
-  filters: { process: '', roast: '' },
 };
 
 // ---------- DOM ----------
@@ -93,26 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
   initVerification();
   initForm();
   initSlider();
-  initFilters();
   fetchDashboard();
   fetchComments();
   fetchVotes();
   setInterval(fetchDashboard, CONFIG.pollInterval);
   setInterval(fetchVotes, CONFIG.voteInterval);
 });
-
-function initFilters() {
-  document.querySelectorAll('.filter-pills').forEach(group => {
-    const filterKey = group.dataset.filter; // 'process' or 'roast'
-    group.addEventListener('click', e => {
-      const btn = e.target.closest('button[data-value]');
-      if (!btn) return;
-      group.querySelectorAll('button').forEach(b => b.classList.toggle('active', b === btn));
-      state.filters[filterKey] = btn.dataset.value;
-      fetchDashboard();
-    });
-  });
-}
 
 // ---------- SCROLL FADE ----------
 function initScrollFade() {
@@ -411,10 +396,7 @@ async function fetchDashboard() {
     if (!CONFIG.sheetUrl) {
       data = getDemoAggregates();
     } else {
-      const url = CONFIG.sheetUrl + '?action=read_aggregates'
-        + '&process=' + encodeURIComponent(state.filters.process || '')
-        + '&roast=' + encodeURIComponent(state.filters.roast || '')
-        + '&_t=' + Date.now();
+      const url = CONFIG.sheetUrl + '?action=read_aggregates&_t=' + Date.now();
       const res = await fetch(url);
       data = await res.json();
     }
@@ -429,10 +411,6 @@ async function fetchDashboard() {
 function getDemoAggregates() {
   let feed = [];
   try { feed = JSON.parse(localStorage.getItem('horizonlab_demo_feed') || '[]'); } catch {}
-
-  // Apply filters
-  if (state.filters.process) feed = feed.filter(f => f.process === state.filters.process);
-  if (state.filters.roast) feed = feed.filter(f => f.roast === state.filters.roast);
 
   if (feed.length === 0) {
     return { total_brews: 0, total_owners: 0, impact_score: null, avg_treatment_mins: null, by_origin: {}, by_process: {}, by_roast: {}, by_time: {}, by_method: {}, by_flavor: {} };
@@ -513,102 +491,14 @@ function getTimeBucket(mins) {
 
 // ---------- RENDER DASHBOARD ----------
 function renderDashboard(data) {
-  // Hero stats reflect the filtered set so users see how the picked
-  // profile performs (when a filter is active) or the global picture
-  // (when "All" is selected on both filters).
   $('#statBrews').textContent = (data.total_brews || 0).toLocaleString();
   $('#statOwners').textContent = (data.total_owners || 0).toLocaleString();
   $('#statImpact').textContent = (data.impact_score != null && data.total_brews > 0)
     ? data.impact_score + '%'
     : '--';
 
-  renderSummary(data);
   renderGaps(data);
   renderFlavorStronger(data);
-}
-
-function renderSummary(data) {
-  const card = $('#summaryCard');
-  const total = data.total_brews || 0;
-
-  if (total === 0) {
-    card.innerHTML = '<div class="chart-empty">' + escapeHtml(t('summary_no_match')) + '</div>';
-    return;
-  }
-
-  const avgTime = data.avg_treatment_mins
-    ? formatTreatment(data.avg_treatment_mins)
-    : '--';
-  const impact = (data.impact_score != null) ? data.impact_score + '%' : '--';
-
-  // Top 5 flavor changes by total report volume (more + less). Each entry
-  // shows a divergent bar — % of matched brews that said "less" on the left,
-  // % that said "more" on the right.
-  const flavorEntries = Object.entries(data.by_flavor || {})
-    .map(([key, val]) => {
-      // Backend may return either {more, less} (new) or a bare count (legacy).
-      const more = typeof val === 'object' ? (val.more || 0) : (val || 0);
-      const less = typeof val === 'object' ? (val.less || 0) : 0;
-      // Drop unknown / corrupt keys (e.g. "#ERROR!"); only keep flavors with a
-      // known translation key so garbage data doesn't surface as bars.
-      const flavorKey = 'flavor_' + key.toLowerCase().replace(/ .*/, '');
-      if (t(flavorKey) === flavorKey) return null;
-      return {
-        key,
-        more,
-        less,
-        morePct: Math.round((more / total) * 100),
-        lessPct: Math.round((less / total) * 100),
-        totalReports: more + less,
-      };
-    })
-    .filter(f => f && f.totalReports > 0)
-    .sort((a, b) => b.totalReports - a.totalReports)
-    .slice(0, 5);
-
-  const flavorRows = flavorEntries.map(f => {
-    const flavorKey = 'flavor_' + f.key.toLowerCase().replace(/ .*/, '');
-    const label = t(flavorKey) !== flavorKey ? t(flavorKey) : f.key;
-    return `
-      <div class="divergent-row">
-        <span class="divergent-label" title="${escapeHtml(label)}">${escapeHtml(label)}</span>
-        <div class="divergent-track">
-          <div class="divergent-half divergent-half-less">
-            <div class="divergent-fill" style="width: ${f.lessPct}%"></div>
-          </div>
-          <div class="divergent-half divergent-half-more">
-            <div class="divergent-fill" style="width: ${f.morePct}%"></div>
-          </div>
-        </div>
-        <span class="divergent-stats">
-          <span class="divergent-less-stat">${f.lessPct}%</span>
-          <span class="divergent-sep">/</span>
-          <span class="divergent-more-stat">${f.morePct}%</span>
-        </span>
-      </div>
-    `;
-  }).join('');
-
-  card.innerHTML = `
-    <div class="summary-headline">
-      <strong>${total.toLocaleString()}</strong>
-      ${escapeHtml(t('summary_brews_label'))}
-    </div>
-    <div class="summary-stats">
-      <div class="summary-pill">
-        <span class="summary-pill-num">${escapeHtml(avgTime)}</span>
-        <span class="summary-pill-label">${escapeHtml(t('summary_avg_time'))}</span>
-      </div>
-      <div class="summary-pill">
-        <span class="summary-pill-num">${escapeHtml(impact)}</span>
-        <span class="summary-pill-label">${escapeHtml(t('summary_impact_label'))}</span>
-      </div>
-    </div>
-    ${flavorRows ? `
-      <h4 class="summary-flavors-title">${escapeHtml(t('summary_top_flavors'))}</h4>
-      <div class="summary-flavors">${flavorRows}</div>
-    ` : ''}
-  `;
 }
 
 // ---------- EXPLORE GAPS ----------
